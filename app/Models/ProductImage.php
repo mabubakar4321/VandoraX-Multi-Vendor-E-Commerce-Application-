@@ -3,42 +3,31 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProductImage extends Model
 {
-     use HasFactory;
-
     protected $fillable = [
-        'product_id',
-        'image_url',
-        'image_alt_text',
-        'display_order',
-        'is_primary',
+        'product_id', 'image_path', 'thumbnail_path',
+        'is_main', 'display_order', 'alt_text', 'file_size',
     ];
 
     protected $casts = [
-        'is_primary' => 'boolean',
+        'is_main' => 'boolean',
     ];
 
-    // Relationships
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    // Scopes
-    public function scopePrimary($query)
+    public function getImageUrl()
     {
-        return $query->where('is_primary', true);
+        return asset('storage/' . $this->image_path);
     }
 
-    // Methods
-    public function makePrimary()
+    public function getThumbnailUrl()
     {
-        ProductImage::where('product_id', $this->product_id)
-            ->update(['is_primary' => false]);
-        
-        $this->update(['is_primary' => true]);
+        return asset('storage/' . ($this->thumbnail_path ?? $this->image_path));
     }
 }

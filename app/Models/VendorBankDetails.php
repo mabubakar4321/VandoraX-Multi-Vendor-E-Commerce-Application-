@@ -1,12 +1,14 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class VendorBankDetails extends Model
 {
-     use HasFactory;
+    use HasFactory;
 
     protected $fillable = [
         'vendor_id',
@@ -20,19 +22,49 @@ class VendorBankDetails extends Model
         'verification_date',
     ];
 
-    protected $casts = [
-        'is_primary' => 'boolean',
-        'is_verified' => 'boolean',
-        'verification_date' => 'datetime',
+    /**
+     * Sensitive banking information is hidden
+     * from array and JSON output.
+     */
+    protected $hidden = [
+        'account_number',
+        'iban',
     ];
 
-    // Relationships
-    public function vendor()
+    /**
+     * Attribute casting.
+     *
+     * account_number and iban are encrypted automatically
+     * when saved and decrypted automatically when accessed.
+     */
+    protected function casts(): array
+    {
+        return [
+            'account_number'    => 'encrypted',
+            'iban'              => 'encrypted',
+            'is_primary'        => 'boolean',
+            'is_verified'       => 'boolean',
+            'verification_date' => 'datetime',
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
+    public function vendor(): BelongsTo
     {
         return $this->belongsTo(Vendor::class);
     }
 
-    // Scopes
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
     public function scopePrimary($query)
     {
         return $query->where('is_primary', true);
@@ -43,20 +75,52 @@ class VendorBankDetails extends Model
         return $query->where('is_verified', true);
     }
 
-    // Methods
-    public function verify()
+    /*
+    |--------------------------------------------------------------------------
+    | Verification
+    |--------------------------------------------------------------------------
+    */
+
+    public function verify(): void
     {
         $this->update([
-            'is_verified' => true,
+            'is_verified'       => true,
             'verification_date' => now(),
         ]);
     }
 
-    public function makePrimary()
+    /*
+    |--------------------------------------------------------------------------
+    | Primary Bank Account
+    |--------------------------------------------------------------------------
+    */
+
+    public function makePrimary(): void
     {
-        VendorBankDetails::where('vendor_id', $this->vendor_id)
-            ->update(['is_primary' => false]);
-        
-        $this->update(['is_primary' => true]);
+        static::where('vendor_id', $this->vendor_id)
+            ->where('id', '!=', $this->id)
+            ->update([
+                'is_primary' => false,
+            ]);
+
+        $this->update([
+            'is_primary' => true,
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Account Number Masking
+    |--------------------------------------------------------------------------
+    */
+
+    public function maskedAccountNumber(): string
+    {
+        $accountNumber = $this->account_number ?? '';
+
+        return str_repeat(
+            '*',
+            max(0, strlen($accountNumber) - 4)
+        ) . substr($accountNumber, -4);
     }
 }

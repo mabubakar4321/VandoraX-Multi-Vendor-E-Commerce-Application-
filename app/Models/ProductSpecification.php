@@ -3,26 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProductSpecification extends Model
 {
-    use HasFactory;
     protected $fillable = [
-        'product_id',
-        'spec_name',
-        'spec_value',
-        'display_order',
+        'product_id', 'spec_key', 'spec_value', 'display_order',
     ];
 
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
-    }
-
-     public function getDisplayName()
-    {
-        return $this->spec_name . ': ' . $this->spec_value;
     }
 }

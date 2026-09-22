@@ -1,3 +1,134 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+    --color-forest: #0E2A22;
+    --color-forest-900: #081813;
+    --color-forest-700: #14392E;
+    --color-forest-500: #1E6F5C;
+    --color-forest-100: #D6E3DD;
+
+    --color-marigold: #F2B705;
+    --color-marigold-600: #D9A404;
+    --color-marigold-100: #FDF3D4;
+
+    --color-vermilion: #B23A2E;
+    --color-vermilion-100: #F7E4E1;
+
+    --color-paper: #F5F7F4;
+    --color-mist: #E4EAE5;
+    --color-graphite: #4A5551;
+
+    --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+    html {
+        -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+        @apply bg-paper text-graphite font-sans;
+    }
+
+    h1, h2, h3 {
+        @apply font-display text-forest;
+        letter-spacing: -0.02em;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-marigold);
+        outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+@layer components {
+
+    .field-label {
+        @apply mb-1.5 block text-sm font-medium text-forest;
+    }
+
+    .field {
+        @apply w-full border border-mist bg-white px-3.5 py-3 text-[15px] text-forest
+               placeholder:text-graphite/40
+               focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest;
+        border-radius: 2px;
+    }
+
+    .field-invalid {
+        @apply border-vermilion focus:border-vermilion focus:ring-vermilion;
+    }
+
+    .field-hint {
+        @apply mt-1.5 text-[13px] text-graphite/70;
+    }
+
+    .field-error {
+        @apply mt-1.5 text-[13px] text-vermilion;
+    }
+
+    .btn-primary {
+        @apply inline-flex w-full items-center justify-center gap-2 bg-marigold px-5 py-3.5
+               text-[15px] font-semibold text-forest transition-colors
+               hover:bg-marigold-600 disabled:cursor-not-allowed disabled:opacity-50;
+        border-radius: 2px;
+    }
+
+    .btn-dark {
+        @apply inline-flex w-full items-center justify-center bg-forest px-5 py-3.5
+               text-[15px] font-semibold text-white transition-colors hover:bg-forest-700;
+        border-radius: 2px;
+    }
+
+    .btn-quiet {
+        @apply text-sm font-medium text-forest underline decoration-mist
+               underline-offset-4 transition-colors hover:decoration-forest;
+    }
+
+    .panel {
+        @apply border border-mist bg-white;
+        border-radius: 2px;
+    }
+
+    .alert {
+        @apply mb-5 border-l-[3px] bg-white px-4 py-3 text-sm;
+    }
+
+    .alert-success { @apply border-forest-500 text-forest; }
+    .alert-warning { @apply border-marigold text-forest; }
+    .alert-error   { @apply border-vermilion text-vermilion; }
+
+    /* ── Admin sidebar ── */
+
+    .sidebar-heading {
+        @apply mt-5 mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-graphite/60;
+    }
+
+    .sidebar-link {
+        @apply flex items-center gap-3 rounded px-3 py-2.5 text-[14px] font-medium text-graphite
+               transition-colors hover:bg-forest-100/40 hover:text-forest;
+    }
+
+    .sidebar-link.active {
+        @apply bg-forest text-white;
+    }
+
+    .sidebar-link.active .sidebar-icon {
+        @apply text-marigold;
+    }
+
+    .sidebar-icon {
+        @apply h-[18px] w-[18px] shrink-0;
+    }
+}
+
+.tabular {
+    font-variant-numeric: tabular-nums;
+}

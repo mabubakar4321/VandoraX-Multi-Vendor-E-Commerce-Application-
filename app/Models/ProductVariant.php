@@ -2,45 +2,42 @@
 
 namespace App\Models;
 
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProductVariant extends Model
 {
-      use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
-        'product_id',
-        'variant_name',
-        'variant_type',
-        'variant_value',
-        'price',
-        'stock_quantity',
-        'sku',
-        'is_available',
+        'product_id', 'variant_name', 'variant_value',
+        'price', 'stock', 'sku', 'weight', 'dimensions',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
-        'is_available' => 'boolean',
+        'stock' => 'integer',
     ];
 
-    // Relationships
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    // Scopes
-    public function scopeAvailable($query)
+    public function inventory(): HasMany
     {
-        return $query->where('is_available', true)->where('stock_quantity', '>', 0);
+        return $this->hasMany(ProductInventory::class, 'variant_id');
     }
 
-    // Methods
-    public function isInStock()
+    public function inventoryLogs(): HasMany
     {
-        return $this->stock_quantity > 0 && $this->is_available;
+        return $this->hasMany(ProductInventoryLog::class, 'variant_id');
+    }
+
+    public function getDisplayName()
+    {
+        return "{$this->variant_name}: {$this->variant_value}";
     }
 }
