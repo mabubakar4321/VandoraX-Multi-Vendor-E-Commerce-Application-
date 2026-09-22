@@ -55,7 +55,7 @@
                         >
                         <div class="space-y-2 text-sm text-gray-600">
                             <p><strong>Alt Text:</strong> {{ $categoryRequest->image_alt_text ?? 'Not set' }}</p>
-                            <p><strong>Size:</strong> {{ formatBytes(Storage::disk('public')->size($categoryRequest->image_path)) ?? 'Unknown' }}</p>
+                            <p><strong>Size:</strong> {{ $categoryRequest->image_path ? 'Uploaded' : 'Unknown' }}</p>
                         </div>
 
                         <!-- Delete Button -->
