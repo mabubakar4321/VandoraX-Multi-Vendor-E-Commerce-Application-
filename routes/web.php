@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\VendorAuthController;
 use App\Http\Controllers\Storefront\ProductController as StorefrontProductController;
+use App\Http\Controllers\Vendor\CategoryImageController;
 use App\Http\Controllers\Vendor\CategoryRequestController;
 use App\Http\Controllers\Vendor\ProductBulkImportController;
 use App\Http\Controllers\Vendor\ProductController;
@@ -229,6 +230,11 @@ Route::prefix('vendor')->name('vendor.')->group(function () {
         Route::post('request', [CategoryRequestController::class, 'store'])->name('request.store');
         Route::get('request/{request}', [CategoryRequestController::class, 'show'])->name('request.show');
         Route::get('{category}/subcategories', [\App\Http\Controllers\Admin\CategoryController::class, 'getSubcategories'])->name('subcategories');
+
+        // Category Image Upload (only for approved categories)
+        Route::get('request/{categoryRequest}/image', [CategoryImageController::class, 'edit'])->name('image.edit');
+        Route::post('request/{categoryRequest}/image', [CategoryImageController::class, 'store'])->name('image.store');
+        Route::delete('request/{categoryRequest}/image', [CategoryImageController::class, 'destroy'])->name('image.destroy');
     });
 });
 

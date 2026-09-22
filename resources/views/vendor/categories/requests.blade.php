@@ -60,7 +60,14 @@
                             <td class="px-5 py-4 text-sm text-graphite">{{ optional($request->requested_at)->format('M d, Y') }}</td>
                             <td class="px-5 py-4 text-sm text-graphite">{{ optional($request->approved_at)->format('M d, Y') ?? '—' }}</td>
                             <td class="px-5 py-4">
-                                <a href="{{ route('vendor.categories.request.show', $request) }}" class="text-sm font-semibold text-forest underline decoration-mist underline-offset-4 hover:decoration-forest">View details</a>
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('vendor.categories.request.show', $request) }}" class="text-sm font-semibold text-forest underline decoration-mist underline-offset-4 hover:decoration-forest">View</a>
+                                    @if ($request->isApproved())
+                                        <a href="{{ route('vendor.categories.image.edit', $request) }}" class="text-sm font-semibold text-blue-600 underline decoration-mist underline-offset-4 hover:decoration-blue-600" title="Upload category image">
+                                            📸 Image
+                                        </a>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty

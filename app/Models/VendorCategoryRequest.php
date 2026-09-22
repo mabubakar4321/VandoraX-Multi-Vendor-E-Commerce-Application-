@@ -21,6 +21,8 @@ class VendorCategoryRequest extends Model
         'requested_at',
         'approved_at',
         'approved_by',
+        'image_path',
+        'image_alt_text',
     ];
 
     protected $casts = [
@@ -69,5 +71,20 @@ class VendorCategoryRequest extends Model
     public function isRejected(): bool
     {
         return $this->status === 'rejected';
+    }
+
+    public function getImageUrl()
+    {
+        return $this->image_path ? asset('storage/' . $this->image_path) : null;
+    }
+
+    public function hasImage(): bool
+    {
+        return $this->image_path !== null;
+    }
+
+    public function canUploadImage(): bool
+    {
+        return $this->isApproved();
     }
 }
