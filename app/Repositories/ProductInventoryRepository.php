@@ -28,10 +28,15 @@ class ProductInventoryRepository extends BaseRepository
 
     public function updateStock($productId, $variantId, $newQuantity, $reason, $userId = null)
     {
-        $inventory = $this->model
-            ->where('product_id', $productId)
-            ->where('variant_id', $variantId)
-            ->first();
+        $query = $this->model->where('product_id', $productId);
+
+        if ($variantId === null) {
+            $query->whereNull('variant_id');
+        } else {
+            $query->where('variant_id', $variantId);
+        }
+
+        $inventory = $query->first();
 
         if ($inventory) {
             $oldQuantity = $inventory->quantity;

@@ -1021,6 +1021,110 @@
     </style>
 </head>
 <body>
+    <!-- PROFESSIONAL HEADER - UNIFIED DESIGN -->
+    <header style="background: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); border-bottom: 1px solid rgba(0, 0, 0, 0.05);">
+        <div style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; height: 70px;">
+                <!-- Logo -->
+                <a href="{{ route('home') }}" style="text-decoration: none; font-size: 26px; font-weight: 700; color: #1a1a2e; letter-spacing: -0.5px; flex-shrink: 0;">Vandora<span style="color: #ffa500;">X</span></a>
+
+                <!-- Search Bar -->
+                <div style="flex: 1; max-width: 450px; margin: 0 40px;">
+                    <form action="{{ route('storefront.products.index') }}" method="GET" style="display: flex; gap: 6px;">
+                        <input type="text" name="search" placeholder="Search products..." style="flex: 1; padding: 10px 16px; border: 1px solid #E8E8E8; border-radius: 6px 0 0 6px; font-size: 14px; background: white; transition: border-color 0.2s; outline: none;" value="{{ request('search', '') }}" onfocus="this.style.borderColor='#1a1a2e'" onblur="this.style.borderColor='#E8E8E8'">
+                        <button type="submit" style="padding: 10px 24px; background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); border: none; border-radius: 0 6px 6px 0; color: white; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(26, 26, 46, 0.2);" onmouseover="this.style.boxShadow='0 6px 16px rgba(26, 26, 46, 0.3)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(26, 26, 46, 0.2)'">Search</button>
+                    </form>
+                </div>
+
+                <!-- Right Menu -->
+                <div style="display: flex; align-items: center; gap: 28px; flex-shrink: 0;">
+                    <!-- Wishlist Icon -->
+                    @if(auth()->check())
+                    <a href="{{ route('wishlist.index') }}" title="Wishlist" style="text-decoration: none; color: #1a1a2e; font-size: 22px; position: relative; display: flex; align-items: center; justify-content: center; transition: transform 0.2s, color 0.2s;" onmouseover="this.style.color='#ffa500'; this.style.transform='scale(1.1)'" onmouseout="this.style.color='#1a1a2e'; this.style.transform='scale(1)'">
+                        <span>♡</span>
+                        <span id="wishlist-count" style="position: absolute; top: -8px; right: -12px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1a1a2e; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 12px; min-width: 20px; text-align: center; display: none; box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);">0</span>
+                    </a>
+                    @else
+                    <a href="{{ route('customer.login') }}" title="Login to use wishlist" style="text-decoration: none; color: #999; font-size: 22px; position: relative; display: flex; align-items: center; justify-content: center; transition: all 0.2s; opacity: 0.6;" onmouseover="this.style.color='#ffa500'; this.style.opacity='1'; this.style.transform='scale(1.1)'" onmouseout="this.style.color='#999'; this.style.opacity='0.6'; this.style.transform='scale(1)'">
+                        <span>♡</span>
+                    </a>
+                    @endif
+
+                    <!-- Cart Icon -->
+                    <a href="{{ route('cart.index') }}" title="Shopping Cart" style="text-decoration: none; color: #1a1a2e; font-size: 22px; position: relative; display: flex; align-items: center; justify-content: center; transition: transform 0.2s, color 0.2s;" onmouseover="this.style.color='#ffa500'; this.style.transform='scale(1.1)'" onmouseout="this.style.color='#1a1a2e'; this.style.transform='scale(1)'">
+                        <span>🛒</span>
+                        <span id="cart-count" style="position: absolute; top: -8px; right: -12px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1a1a2e; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 12px; min-width: 20px; text-align: center; display: none; box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);">0</span>
+                    </a>
+
+                    <!-- User Menu / Auth -->
+                    @if(auth()->check())
+                        <div style="display: flex; align-items: center; gap: 16px; padding-left: 28px; border-left: 1px solid #E8E8E8;">
+                            <div style="text-align: right;">
+                                <div style="color: #1a1a2e; font-size: 13px; font-weight: 600;">{{ auth()->user()->name }}</div>
+                                <div style="color: #999; font-size: 11px; margin-top: 2px;">Customer</div>
+                            </div>
+                            <form method="POST" action="{{ route('customer.logout') }}" style="margin: 0;">
+                                @csrf
+                                <button type="submit" style="background: rgba(255, 165, 0, 0.1); border: none; color: #ffa500; cursor: pointer; font-weight: 600; font-size: 12px; padding: 6px 12px; border-radius: 4px; transition: all 0.2s;" onmouseover="this.style.background='rgba(255, 165, 0, 0.2)'" onmouseout="this.style.background='rgba(255, 165, 0, 0.1)'">Logout</button>
+                            </form>
+                        </div>
+                    @else
+                        <div style="display: flex; gap: 12px; padding-left: 28px; border-left: 1px solid #E8E8E8;">
+                            <a href="{{ route('customer.login') }}" style="color: #1a1a2e; text-decoration: none; font-weight: 600; font-size: 13px; padding: 6px 12px; border-radius: 4px; transition: all 0.2s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">Login</a>
+                            <a href="{{ route('customer.register') }}" style="color: white; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); text-decoration: none; font-weight: 600; font-size: 13px; padding: 6px 12px; border-radius: 4px; display: inline-block; transition: all 0.2s; box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);" onmouseover="this.style.boxShadow='0 4px 12px rgba(255, 165, 0, 0.4)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(255, 165, 0, 0.3)'">Register</a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <script>
+        // Update cart count
+        function updateCartCount() {
+            fetch('{{ route('cart.count') }}')
+                .then(r => r.json())
+                .then(data => {
+                    const count = data.count || 0;
+                    const el = document.getElementById('cart-count');
+                    if (el) {
+                        if (count > 0) {
+                            el.textContent = count;
+                            el.style.display = 'block';
+                        } else {
+                            el.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(e => console.error('Cart error:', e));
+        }
+
+        // Update wishlist count
+        function updateWishlistCount() {
+            @if(auth()->check())
+            fetch('{{ route('wishlist.count') }}')
+                .then(r => r.json())
+                .then(data => {
+                    const count = data.count || 0;
+                    const el = document.getElementById('wishlist-count');
+                    if (el) {
+                        if (count > 0) {
+                            el.textContent = count;
+                            el.style.display = 'block';
+                        } else {
+                            el.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(e => console.error('Wishlist error:', e));
+            @endif
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            updateWishlistCount();
+        });
+    </script>
     <!-- Navigation -->
     <nav class="nav-luxury">
         <div class="logo-luxury">VandoraX</div>

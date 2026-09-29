@@ -2,6 +2,7 @@
 
 @php
 
+
     $stock = $product->getTotalStock();
     $type = $stock === 0 ? 'out' : ($stock < 5 ? 'low' : 'ok');
 @endphp

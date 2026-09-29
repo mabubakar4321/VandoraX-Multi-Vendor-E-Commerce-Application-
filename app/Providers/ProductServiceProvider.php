@@ -30,7 +30,10 @@ class ProductServiceProvider extends ServiceProvider
 
         // Services
         $this->app->bind(ProductService::class, function ($app) {
-            return new ProductService($app->make(ProductRepository::class));
+            return new ProductService(
+                $app->make(ProductRepository::class),
+                $app->make(ProductInventoryService::class)
+            );
         });
 
         $this->app->bind(ProductImageService::class, function ($app) {

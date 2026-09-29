@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VandoraX Header Redesign Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #1a1a2e;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .design-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .design-header {
+            padding: 20px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .design-header h2 {
+            font-size: 18px;
+            color: #1a1a2e;
+            font-weight: 700;
+        }
+
+        .design-header .status {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        .preview {
+            padding: 20px;
+            background: white;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* OLD DESIGN */
+        .header-old {
+            background: linear-gradient(135deg, #1a472a 0%, #2d6a47 100%);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            gap: 20px;
+            border-bottom: 2px solid #ffa500;
+        }
+
+        .logo-old {
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .logo-old span {
+            color: #ffa500;
+        }
+
+        .search-old {
+            flex: 1;
+            display: flex;
+            gap: 6px;
+        }
+
+        .search-old input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 12px;
+            background: white;
+            color: #333;
+        }
+
+        .search-old button {
+            padding: 8px 16px;
+            background: #ffa500;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .icons-old {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .user-old {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding-left: 20px;
+            border-left: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 12px;
+        }
+
+        .logout-old {
+            background: none;
+            border: none;
+            color: #ffa500;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        /* NEW DESIGN */
+        .header-new {
+            background: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            gap: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo-new {
+            color: #1a1a2e;
+            font-size: 22px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .logo-new span {
+            color: #ffa500;
+        }
+
+        .search-new {
+            flex: 1;
+            display: flex;
+            gap: 6px;
+        }
+
+        .search-new input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px 0 0 4px;
+            font-size: 12px;
+            background: white;
+            color: #333;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-new input:focus {
+            border-color: #1a1a2e;
+        }
+
+        .search-new button {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            border: none;
+            border-radius: 0 4px 4px 0;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(26, 26, 46, 0.2);
+        }
+
+        .icons-new {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            color: #1a1a2e;
+            font-size: 18px;
+        }
+
+        .icon-new {
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .icon-new:hover {
+            color: #ffa500;
+            transform: scale(1.1);
+        }
+
+        .badge-new {
+            position: absolute;
+            top: -8px;
+            right: -10px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a2e;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
+        }
+
+        .user-new {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding-left: 20px;
+            border-left: 1px solid #e0e0e0;
+        }
+
+        .user-info-new {
+            text-align: right;
+        }
+
+        .user-name-new {
+            color: #1a1a2e;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .user-role-new {
+            color: #999;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        .logout-new {
+            background: rgba(255, 165, 0, 0.1);
+            border: none;
+            color: #ffa500;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .logout-new:hover {
+            background: rgba(255, 165, 0, 0.2);
+        }
+
+        .features {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .features h2 {
+            font-size: 24px;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-item {
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #ffa500;
+        }
+
+        .feature-item h3 {
+            font-size: 14px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .feature-item p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .colors {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .colors h2 {
+            font-size: 24px;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .color-box {
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .color-box h3 {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .color-box p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .status-old {
+            background: #ffd6d6;
+            color: #d32f2f;
+        }
+
+        .status-new {
+            background: #d6f5d6;
+            color: #1b5e20;
+        }
+
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .header-old, .header-new {
+                flex-direction: column;
+                height: auto;
+                gap: 12px;
+                padding: 12px;
+            }
+
+            .search-old, .search-new {
+                width: 100%;
+            }
+
+            .icons-old, .icons-new {
+                width: 100%;
+                justify-content: space-around;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 VandoraX Header Redesign</h1>
+        <p class="subtitle">Professional unified header design applied to home and product pages</p>
+
+        <div class="comparison">
+            <!-- OLD DESIGN -->
+            <div class="design-card">
+                <div class="design-header">
+                    <h2>❌ Before (Old Design)</h2>
+                    <p class="status">Green gradient header with inconsistencies</p>
+                </div>
+                <div class="preview">
+                    <div class="header-old">
+                        <div class="logo-old">Vandora<span>X</span></div>
+                        <div class="search-old">
+                            <input type="text" placeholder="Search..." readonly>
+                            <button>Search</button>
+                        </div>
+                        <div class="icons-old">
+                            <span>♡</span>
+                            <span>🛒</span>
+                        </div>
+                        <div class="user-old">
+                            <span>User</span>
+                            <button class="logout-old">Logout</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="padding: 20px; background: #f9f9f9;">
+                    <div class="status-badge status-old">Issues: Inconsistent styling, harsh colors, duplicate headers on product pages</div>
+                </div>
+            </div>
+
+            <!-- NEW DESIGN -->
+            <div class="design-card">
+                <div class="design-header">
+                    <h2>✅ After (New Design)</h2>
+                    <p class="status">Clean white header with professional styling</p>
+                </div>
+                <div class="preview">
+                    <div class="header-new">
+                        <div class="logo-new">Vandora<span>X</span></div>
+                        <div class="search-new">
+                            <input type="text" placeholder="Search products..." readonly>
+                            <button>Search</button>
+                        </div>
+                        <div class="icons-new">
+                            <span class="icon-new">♡<span class="badge-new">2</span></span>
+                            <span class="icon-new">🛒<span class="badge-new">1</span></span>
+                        </div>
+                        <div class="user-new">
+                            <div class="user-info-new">
+                                <div class="user-name-new">John Doe</div>
+                                <div class="user-role-new">Customer</div>
+                            </div>
+                            <button class="logout-new">Logout</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="padding: 20px; background: #f9f9f9;">
+                    <div class="status-badge status-new">✓ Unified design, consistent, professional, accessible</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEATURES -->
+        <div class="features">
+            <h2>✨ New Features & Improvements</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h3>🎯 Professional White Background</h3>
+                    <p>Clean, modern aesthetic that works across all pages for consistency and brand professionalism.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🔍 Enhanced Search</h3>
+                    <p>Improved search bar with focus states and gradient button for better user experience and visual hierarchy.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>💫 Interactive Icons</h3>
+                    <p>Icons scale and change to gold on hover, providing clear visual feedback and improved interactivity.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🏷️ Premium Badges</h3>
+                    <p>Gradient gold badges with shadow effects for cart and wishlist counts, creating a luxury appearance.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>👤 User Info Display</h3>
+                    <p>Displays user name and "Customer" role with better formatting and clear logout functionality.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🔐 Guest Experience</h3>
+                    <p>Wishlist icon is grayed out for guests, clearly indicating login requirement. Clicking redirects to login.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>📊 Real-Time Updates</h3>
+                    <p>Cart and wishlist counts update in real-time as items are added or removed from the system.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>📱 Mobile Responsive</h3>
+                    <p>Header adapts perfectly to all screen sizes, from mobile (320px) to desktop (1400px+).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLOR PALETTE -->
+        <div class="colors">
+            <h2>🎨 Color Palette</h2>
+            <div class="color-grid">
+                <div class="color-box" style="background: #1a1a2e; color: white;">
+                    <h3>Primary Dark</h3>
+                    <p>#1a1a2e</p>
+                    <p>Used for text, borders, primary buttons</p>
+                </div>
+                <div class="color-box" style="background: #ffa500;">
+                    <h3>Gold Accent</h3>
+                    <p>#ffa500</p>
+                    <p>Used for highlights, logos, interactive elements</p>
+                </div>
+                <div class="color-box" style="background: white; border: 1px solid #e0e0e0;">
+                    <h3>Background White</h3>
+                    <p>#ffffff</p>
+                    <p>Clean header background</p>
+                </div>
+                <div class="color-box" style="background: #f5f5f5; border: 1px solid #e0e0e0;">
+                    <h3>Light Gray</h3>
+                    <p>#f5f5f5</p>
+                    <p>Used for input backgrounds</p>
+                </div>
+                <div class="color-box" style="background: #e0e0e0;">
+                    <h3>Border Gray</h3>
+                    <p>#e0e0e0</p>
+                    <p>Used for separators and borders</p>
+                </div>
+                <div class="color-box" style="background: #666; color: white;">
+                    <h3>Text Gray</h3>
+                    <p>#666</p>
+                    <p>Used for secondary text</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

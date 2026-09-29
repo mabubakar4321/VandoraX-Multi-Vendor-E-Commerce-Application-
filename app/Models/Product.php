@@ -147,9 +147,13 @@ class Product extends Model
 
     public function getTotalStock()
     {
-        return $this->variants()->sum('stock')
-            ?? $this->inventory()->sum('quantity')
-            ?? 0;
+        // Check variants first; if product has variants, use their stock
+        if ($this->variants()->count() > 0) {
+            return (int) $this->variants()->sum('stock');
+        }
+
+        // Otherwise fall back to inventory table
+        return (int) $this->inventory()->sum('quantity');
     }
 
     public function isOutOfStock()

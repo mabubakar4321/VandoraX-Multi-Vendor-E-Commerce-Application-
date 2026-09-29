@@ -11,6 +11,9 @@ use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\VendorAuthController;
 use App\Http\Controllers\Storefront\ProductController as StorefrontProductController;
+use App\Http\Controllers\Storefront\CollectionController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Vendor\CategoryImageController;
 use App\Http\Controllers\Vendor\CategoryRequestController;
 use App\Http\Controllers\Vendor\ProductBulkImportController;
@@ -29,6 +32,54 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [\App\Http\Controllers\Storefront\HomeController::class, 'index'])->name('home');
 Route::get('products', [StorefrontProductController::class, 'index'])->name('storefront.products.index');
 Route::get('products/{product}', [StorefrontProductController::class, 'show'])->name('storefront.products.show');
+
+// Collection Routes
+Route::get('collections/new-arrivals', [CollectionController::class, 'newArrivals'])->name('collections.new-arrivals');
+Route::get('collections/bestsellers', [CollectionController::class, 'bestsellers'])->name('collections.bestsellers');
+Route::get('collections/summer', [CollectionController::class, 'summer'])->name('collections.summer');
+Route::get('collections/category/{category}', [CollectionController::class, 'category'])->name('collections.category');
+
+// Cart Routes
+Route::get('cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::put('cart/items/{cartItem}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('cart/items/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+Route::get('cart/count', [CartController::class, 'count'])->name('cart.count');
+Route::get('cart/validate', [CartController::class, 'validateCart'])->name('cart.validate');
+Route::post('cart/items/{cartItem}/move-to-wishlist', [CartController::class, 'moveToWishlist'])->name('cart.moveToWishlist');
+
+// Cart Sidebar Routes (AJAX)
+Route::prefix('cart-sidebar')->name('cart-sidebar.')->group(function () {
+    Route::get('items', [\App\Http\Controllers\CartSidebarController::class, 'items'])->name('items');
+    Route::get('summary', [\App\Http\Controllers\CartSidebarController::class, 'summary'])->name('summary');
+});
+
+// Wishlist Routes (require authentication)
+Route::post('wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add'); // Before auth middleware
+
+Route::middleware('auth')->group(function () {
+    Route::get('wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::delete('wishlist/{wishlist}', [WishlistController::class, 'remove'])->name('wishlist.remove');
+    Route::post('wishlist/clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
+    Route::get('wishlist/count', [WishlistController::class, 'count'])->name('wishlist.count');
+});
+
+// Checkout Routes (require authentication)
+Route::middleware('auth')->prefix('checkout')->name('checkout.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\CheckoutController::class, 'index'])->name('index');
+    Route::post('address', [\App\Http\Controllers\CheckoutController::class, 'storeAddress'])->name('address.store');
+    Route::post('address/{address}/default', [\App\Http\Controllers\CheckoutController::class, 'setDefaultAddress'])->name('address.default');
+    Route::delete('address/{address}', [\App\Http\Controllers\CheckoutController::class, 'deleteAddress'])->name('address.delete');
+    Route::post('process', [\App\Http\Controllers\CheckoutController::class, 'process'])->name('process');
+});
+
+// Order Routes (require authentication)
+Route::middleware('auth')->prefix('orders')->name('order.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\OrderController::class, 'index'])->name('index');
+    Route::get('confirmation/{order}', [\App\Http\Controllers\OrderController::class, 'confirmation'])->name('confirmation');
+    Route::get('{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('show');
+});
 
 /*
 |--------------------------------------------------------------------------
