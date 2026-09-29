@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
-use App\Models\CartItem;
 use App\Models\CustomerAddress;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -15,11 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     protected function getCart()
     {
         $userId = auth()->id();
