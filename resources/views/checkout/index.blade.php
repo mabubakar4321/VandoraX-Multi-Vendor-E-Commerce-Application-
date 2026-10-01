@@ -607,10 +607,91 @@
             </div>
         </div>
 
-        <!-- Step 2: Order Review -->
+        <!-- Step 2: Payment Method -->
         <div class="form-section">
             <div class="section-header">
                 <div class="section-number">2</div>
+                <div class="section-title">Payment Method</div>
+            </div>
+
+            <div class="section-content">
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <!-- JazzCash Option -->
+                    <label class="payment-option" id="payment-jazzcash-label" onclick="selectPaymentMethod('jazzcash')" style="display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 2px solid var(--border-medium); border-radius: 10px; cursor: pointer; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.03);">
+                        <input type="radio" name="payment_method" value="jazzcash" onchange="selectPaymentMethod('jazzcash')" style="margin-top: 4px; cursor: pointer; accent-color: var(--accent);">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">📱 JazzCash Mobile Payment</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">Pay directly from your JazzCash account - Instant confirmation</div>
+                        </div>
+                    </label>
+
+                    <!-- Bank Transfer Option -->
+                    <label class="payment-option" id="payment-bank-label" onclick="selectPaymentMethod('bank_transfer')" style="display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 2px solid var(--border-medium); border-radius: 10px; cursor: pointer; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.03);">
+                        <input type="radio" name="payment_method" value="bank_transfer" onchange="selectPaymentMethod('bank_transfer')" style="margin-top: 4px; cursor: pointer; accent-color: var(--accent);">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">🏦 Bank Transfer</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">Transfer to our bank account - Admin verification required</div>
+                        </div>
+                    </label>
+
+                    <!-- Cash on Delivery Option -->
+                    <label class="payment-option" id="payment-cod-label" onclick="selectPaymentMethod('cod')" style="display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 2px solid var(--border-medium); border-radius: 10px; cursor: pointer; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.03);">
+                        <input type="radio" name="payment_method" value="cod" onchange="selectPaymentMethod('cod')" style="margin-top: 4px; cursor: pointer; accent-color: var(--accent);">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">💵 Cash on Delivery</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">Pay when your order is delivered</div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Payment Method Details -->
+                <div id="payment-details" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-light);">
+                    <!-- JazzCash Details -->
+                    <div id="jazzcash-details" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label form-required">JazzCash Account Number</label>
+                            <input type="tel" id="jazzcash_number" name="jazzcash_number" placeholder="03001234567 or 92XXXXXXXXX" class="form-input" pattern="^(\+92|0|92)?3\d{9}$">
+                            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">Format: 03XXXXXXXXX or 92XXXXXXXXXX</div>
+                        </div>
+                    </div>
+
+                    <!-- Bank Transfer Details -->
+                    <div id="bank_transfer-details" style="display: none;">
+                        <div style="background: rgba(255, 165, 0, 0.08); padding: 16px; border-radius: 10px; border-left: 3px solid var(--accent); margin-bottom: 16px;">
+                            <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">Bank Account Details</h4>
+                            <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+                                <div>
+                                    <span style="color: var(--text-secondary);">Bank Name:</span>
+                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ config('bank-transfer.bank_name') }}</span>
+                                </div>
+                                <div>
+                                    <span style="color: var(--text-secondary);">Account Title:</span>
+                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ config('bank-transfer.account_name') }}</span>
+                                </div>
+                                <div>
+                                    <span style="color: var(--text-secondary);">Account Number:</span>
+                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ config('bank-transfer.account_number') }}</span>
+                                </div>
+                                <div>
+                                    <span style="color: var(--text-secondary);">IBAN:</span>
+                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ config('bank-transfer.iban') }}</span>
+                                </div>
+                                <div>
+                                    <span style="color: var(--text-secondary);">Swift Code:</span>
+                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ config('bank-transfer.swift_code') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">After placing your order, you'll receive an email with transfer instructions and a reference number. Please include the reference number with your transfer so we can match and confirm your payment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Order Review -->
+        <div class="form-section">
+            <div class="section-header">
+                <div class="section-number">3</div>
                 <div class="section-title">Order Summary</div>
             </div>
 
@@ -735,6 +816,7 @@
 @push('scripts')
     <script>
         let selectedAddressId = @json($defaultAddress ? $defaultAddress->id : null);
+        let selectedPaymentMethod = 'cod'; // Default to Cash on Delivery
 
         function selectAddress(addressId) {
             selectedAddressId = addressId;
@@ -742,6 +824,33 @@
                 el.classList.remove('selected');
             });
             document.getElementById('addr-option-' + addressId).classList.add('selected');
+        }
+
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+
+            // Update label styles
+            document.querySelectorAll('.payment-option').forEach(el => {
+                el.style.borderColor = 'var(--border-medium)';
+                el.style.background = 'rgba(255, 255, 255, 0.03)';
+            });
+
+            const selectedLabel = document.getElementById('payment-' + method + '-label');
+            if (selectedLabel) {
+                selectedLabel.style.borderColor = 'var(--accent)';
+                selectedLabel.style.background = 'rgba(255, 165, 0, 0.12)';
+            }
+
+            // Hide all payment details
+            document.getElementById('jazzcash-details').style.display = 'none';
+            document.getElementById('bank_transfer-details').style.display = 'none';
+
+            // Show selected method details
+            if (method === 'jazzcash') {
+                document.getElementById('jazzcash-details').style.display = 'block';
+            } else if (method === 'bank_transfer') {
+                document.getElementById('bank_transfer-details').style.display = 'block';
+            }
         }
 
         function toggleAddressForm() {
@@ -782,9 +891,33 @@
                 return;
             }
 
+            if (!selectedPaymentMethod) {
+                alert('Please select a payment method.');
+                return;
+            }
+
+            // Validate payment method specific fields
+            if (selectedPaymentMethod === 'jazzcash') {
+                const mobileNumber = document.getElementById('jazzcash_number').value;
+                if (!mobileNumber) {
+                    alert('Please enter your JazzCash account number.');
+                    return;
+                }
+            }
+
             const btn = document.getElementById('checkout-btn');
             btn.disabled = true;
             btn.textContent = 'Processing...';
+
+            const payloadData = {
+                address_id: selectedAddressId,
+                payment_method: selectedPaymentMethod
+            };
+
+            // Add payment method specific data
+            if (selectedPaymentMethod === 'jazzcash') {
+                payloadData.jazzcash_number = document.getElementById('jazzcash_number').value;
+            }
 
             fetch('{{ route('checkout.process') }}', {
                 method: 'POST',
@@ -792,16 +925,19 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({
-                    address_id: selectedAddressId
-                })
+                body: JSON.stringify(payloadData)
             })
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
-                    if (data.redirect) {
+                    if (data.payment_method === 'jazzcash' && data.redirect) {
+                        // Redirect to JazzCash payment portal
                         window.location.href = data.redirect;
+                    } else {
+                        alert(data.message);
+                        if (data.redirect) {
+                            window.location.href = data.redirect;
+                        }
                     }
                 } else {
                     alert('Error: ' + data.message);
@@ -824,6 +960,8 @@
             if (selectedAddressId) {
                 selectAddress(selectedAddressId);
             }
+            // Initialize payment method display
+            selectPaymentMethod('cod');
         });
     </script>
 @endpush

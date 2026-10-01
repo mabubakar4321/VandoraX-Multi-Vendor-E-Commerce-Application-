@@ -9,8 +9,12 @@ use App\Models\OrderItem;
 use App\Models\OrderAddress;
 use App\Models\VendorOrder;
 use App\Models\ProductInventoryLog;
+use App\Models\Payment;
+use App\Services\JazzCashService;
+use App\Services\BankTransferService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CheckoutController extends Controller
 {
@@ -176,6 +180,8 @@ class CheckoutController extends Controller
     {
         $request->validate([
             'address_id' => 'required|exists:customer_addresses,id',
+            'payment_method' => 'required|in:jazzcash,bank_transfer,cod',
+            'jazzcash_number' => 'required_if:payment_method,jazzcash|regex:/^(\+92|0|92)?3\d{9}$/',
         ]);
 
         $cart = $this->getCart();
@@ -301,8 +307,65 @@ class CheckoutController extends Controller
             $order->update([
                 'total_amount' => $totalAmount,
                 'commission_amount' => $totalCommission,
-                'payment_status' => 'completed', // Since no payment gateway
             ]);
+
+            // Handle payment method
+            $paymentMethod = $request->payment_method;
+            $paymentStatus = 'pending';
+            $redirectUrl = null;
+
+            if ($paymentMethod === 'jazzcash') {
+                // Create payment for JazzCash
+                try {
+                    $jazzcashService = new JazzCashService();
+                    $payment = $jazzcashService->initiatePayment($order, $request->jazzcash_number);
+
+                    $order->update(['payment_id' => $payment->id]);
+                    $redirectUrl = $payment->gateway_response['redirect_url'] ?? null;
+                    $paymentStatus = 'processing';
+
+                    Log::info('JazzCash payment initiated', [
+                        'order_id' => $order->id,
+                        'payment_id' => $payment->id,
+                        'reference' => $payment->transaction_id,
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('JazzCash payment initiation failed', [
+                        'order_id' => $order->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                    throw $e;
+                }
+            } elseif ($paymentMethod === 'bank_transfer') {
+                // Create payment for Bank Transfer
+                try {
+                    $bankService = new BankTransferService();
+                    $payment = $bankService->initiatePayment($order);
+
+                    $order->update(['payment_id' => $payment->id]);
+                    $paymentStatus = 'pending';
+
+                    Log::info('Bank transfer initiated', [
+                        'order_id' => $order->id,
+                        'payment_id' => $payment->id,
+                        'reference' => $payment->transaction_id,
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Bank transfer initiation failed', [
+                        'order_id' => $order->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                    throw $e;
+                }
+            } elseif ($paymentMethod === 'cod') {
+                // Cash on Delivery - no payment processing
+                $paymentStatus = 'completed';
+                $order->update(['payment_status' => 'completed']);
+
+                Log::info('Cash on delivery order created', [
+                    'order_id' => $order->id,
+                ]);
+            }
 
             // Clear cart
             $cart->clearCart();
@@ -314,10 +377,18 @@ class CheckoutController extends Controller
                 'message' => 'Order placed successfully!',
                 'order_id' => $order->id,
                 'order_number' => $order->order_number,
-                'redirect' => route('order.confirmation', $order->id),
+                'payment_method' => $paymentMethod,
+                'payment_status' => $paymentStatus,
+                'redirect' => $redirectUrl ?? route('order.confirmation', $order->id),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
+            Log::error('Checkout process failed', [
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
 
             return response()->json([
                 'success' => false,
