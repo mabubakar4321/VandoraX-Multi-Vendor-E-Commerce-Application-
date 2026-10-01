@@ -235,11 +235,11 @@ class CheckoutController extends Controller
             OrderAddress::create([
                 'order_id' => $order->id,
                 'full_name' => $address->full_name,
-                'phone' => $address->phone,
+                'phone_number' => $address->phone,
                 'address_line_1' => $address->address_line_1,
                 'address_line_2' => $address->address_line_2,
                 'city' => $address->city,
-                'state_province' => $address->state_province,
+                'province' => $address->state_province,
                 'postal_code' => $address->postal_code,
                 'country' => $address->country,
                 'delivery_instructions' => $address->delivery_instructions,
