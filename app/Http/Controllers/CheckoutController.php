@@ -178,11 +178,34 @@ class CheckoutController extends Controller
      */
     public function process(Request $request)
     {
-        $request->validate([
+        // Custom validation for mobile number to avoid regex delimiter issues
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'address_id' => 'required|exists:customer_addresses,id',
             'payment_method' => 'required|in:jazzcash,bank_transfer,cod',
-            'jazzcash_number' => 'required_if:payment_method,jazzcash|regex:/^(\+92|0|92)?3\d{9}$/',
         ]);
+
+        // Add conditional validation for JazzCash number
+        if ($request->payment_method === 'jazzcash') {
+            $validator->addRules([
+                'jazzcash_number' => 'required',
+            ])->addMessages([
+                'jazzcash_number.required' => 'Please enter your JazzCash account number.',
+            ]);
+
+            // Validate mobile number format
+            $mobileNumber = $request->jazzcash_number;
+            if (!preg_match('/^(\+92|0|92)?3\d{9}$/', $mobileNumber)) {
+                $validator->errors()->add('jazzcash_number', 'Please enter a valid Pakistani mobile number (e.g., 03001234567 or +923001234567)');
+            }
+        }
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
 
         $cart = $this->getCart();
 
