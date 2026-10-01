@@ -1273,15 +1273,93 @@
                 <button class="btn-luxury-gold" onclick="window.location='{{ route('storefront.products.index') }}'">
                     Continue Shopping
                 </button>
+                @if(auth()->check())
+                <button class="btn-luxury-secondary" style="border-color: #FFD700; color: #1a1a2e;" onclick="showMyOrders()">
+                    📋 View My Orders
+                </button>
+                @endif
             </div>
             @endguest
         </div>
     </section>
 
 
+    <!-- Orders Modal -->
+    @auth
+    <div id="ordersModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2000; overflow-y: auto;">
+        <div style="background: white; max-width: 900px; margin: 40px auto; border-radius: 16px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); overflow: hidden;">
+            <!-- Modal Header -->
+            <div style="background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); color: white; padding: 24px; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 800;">📋 My Orders</h2>
+                <button onclick="closeOrdersModal()" style="background: rgba(255, 255, 255, 0.2); border: none; color: white; font-size: 28px; cursor: pointer; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">×</button>
+            </div>
+
+            <!-- Modal Content -->
+            <div id="ordersContent" style="padding: 32px; max-height: 600px; overflow-y: auto;">
+                <div style="text-align: center; color: #999;">
+                    <p style="font-size: 16px;">Loading your orders...</p>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div style="background: #f8f9fa; padding: 16px 32px; text-align: right; border-top: 1px solid #E8E8E8;">
+                <button onclick="window.location='{{ route('order.index') }}'" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); border: none; color: #1a1a2e; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 165, 0, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    View All Orders →
+                </button>
+            </div>
+        </div>
+    </div>
+    @endauth
+
     <script>
+        // Show orders modal
+        function showMyOrders() {
+            const modal = document.getElementById('ordersModal');
+            if (!modal) return;
+
+            modal.style.display = 'block';
+            const content = document.getElementById('ordersContent');
+
+            // Fetch user's orders
+            fetch('{{ route('order.index') }}')
+                .then(r => r.text())
+                .then(html => {
+                    // Show simple loading first, then render orders
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Try to extract orders table or list
+                    const ordersContainer = doc.querySelector('[class*="order"]') || doc.querySelector('table');
+
+                    if (ordersContainer) {
+                        content.innerHTML = ordersContainer.outerHTML;
+                    } else {
+                        // Fallback: create simple orders list
+                        content.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;"><p style="font-size: 16px;">📦 Loading your orders...</p><p style="font-size: 14px; margin-top: 16px;"><a href="{{ route('order.index') }}" style="color: #1a1a2e; font-weight: 700; text-decoration: none;">View Full Dashboard →</a></p></div>';
+                    }
+                })
+                .catch(e => {
+                    content.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;"><p style="font-size: 16px;">Unable to load orders preview.</p><p style="font-size: 14px; margin-top: 16px;"><a href="{{ route('order.index') }}" style="color: #1a1a2e; font-weight: 700; text-decoration: none;">View All Orders →</a></p></div>';
+                });
+        }
+
+        // Close orders modal
+        function closeOrdersModal() {
+            const modal = document.getElementById('ordersModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('ordersModal');
+            if (modal && event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
         // Smooth scroll behavior for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
