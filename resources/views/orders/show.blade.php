@@ -122,7 +122,7 @@
                                         <div class="mt-3 space-y-1 text-sm">
                                             <p class="text-gray-600">
                                                 <span>Unit Price:</span>
-                                                <span class="font-semibold text-gray-900">${{ number_format($item->price_at_purchase, 2) }}</span>
+                                                <span class="font-semibold text-gray-900">₨{{ number_format($item->price_at_purchase) }}</span>
                                             </p>
                                             <p class="text-gray-600">
                                                 <span>Quantity:</span>
@@ -144,10 +144,10 @@
                                     <!-- Item Total -->
                                     <div class="flex flex-col items-end">
                                         <p class="text-2xl font-bold text-gray-900">
-                                            ${{ number_format($item->total_amount, 2) }}
+                                            ₨{{ number_format($item->total_amount) }}
                                         </p>
                                         <p class="text-sm text-gray-600 mt-1">
-                                            {{ $item->quantity }} × ${{ number_format($item->price_at_purchase, 2) }}
+                                            {{ $item->quantity }} × ₨{{ number_format($item->price_at_purchase) }}
                                         </p>
                                     </div>
                                 </div>
@@ -157,7 +157,7 @@
                             <div class="px-6 py-4 bg-gray-50">
                                 <div class="flex justify-between font-semibold text-gray-900">
                                     <span>Vendor Subtotal</span>
-                                    <span>${{ number_format($items->sum('total_amount'), 2) }}</span>
+                                    <span>₨{{ number_format($items->sum('total_amount')) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -176,7 +176,7 @@
                     <div class="px-6 py-6 space-y-4">
                         <div class="flex justify-between text-gray-600">
                             <span>Subtotal</span>
-                            <span>${{ number_format($order->total_amount, 2) }}</span>
+                            <span>₨{{ number_format($order->total_amount) }}</span>
                         </div>
 
                         <div class="flex justify-between text-gray-600">
@@ -191,7 +191,7 @@
 
                         <div class="border-t border-gray-200 pt-4 flex justify-between text-lg font-bold text-gray-900">
                             <span>Total</span>
-                            <span>${{ number_format($order->total_amount, 2) }}</span>
+                            <span>₨{{ number_format($order->total_amount) }}</span>
                         </div>
                     </div>
                 </div>
@@ -226,11 +226,20 @@
                         <div>
                             <p class="text-gray-600 font-semibold">Payment Method</p>
                             <p class="text-gray-900 mt-1">
-                                @if($order->payment_status === 'completed')
-                                    Credit Card / Debit Card
-                                @else
-                                    Pending
-                                @endif
+                                @php
+                                    $payment = $order->payment;
+                                    if ($payment) {
+                                        if ($payment->payment_method === 'wallet') {
+                                            echo 'JazzCash';
+                                        } elseif ($payment->payment_method === 'bank_transfer') {
+                                            echo 'Bank Transfer';
+                                        } else {
+                                            echo ucfirst(str_replace('_', ' ', $payment->payment_method));
+                                        }
+                                    } else {
+                                        echo 'Cash on Delivery';
+                                    }
+                                @endphp
                             </p>
                         </div>
                     </div>
