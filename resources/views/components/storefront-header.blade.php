@@ -30,6 +30,7 @@
                         <div class="user-name">{{ auth()->user()->name }}</div>
                         <div class="user-role">Customer</div>
                     </div>
+                    <a href="{{ route('order.index') }}" class="dashboard-btn">My Dashboard</a>
                     <form method="POST" action="{{ route('customer.logout') }}" style="margin: 0;">
                         @csrf
                         <button type="submit" class="logout-btn">Logout</button>
@@ -198,6 +199,25 @@
         color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
+    }
+
+    .dashboard-btn {
+        padding: 8px 14px;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        border: none;
+    }
+
+    .dashboard-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 165, 0, 0.4);
     }
 
     .logout-btn {
