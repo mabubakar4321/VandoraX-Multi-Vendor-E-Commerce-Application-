@@ -67,15 +67,7 @@ class BankTransferService
                 'reference_number' => $referenceNumber,
             ]);
 
-            return [
-                'success' => true,
-                'payment_id' => $payment->id,
-                'reference_number' => $referenceNumber,
-                'order_id' => $order->id,
-                'amount' => $order->total_amount,
-                'bank_details' => $this->config['bank'],
-                'message' => 'Bank transfer initiated. Please transfer the amount to the provided account.',
-            ];
+            return $payment;
         } catch (Exception $e) {
             Log::error('Bank transfer payment initiation failed', [
                 'order_id' => $order->id,

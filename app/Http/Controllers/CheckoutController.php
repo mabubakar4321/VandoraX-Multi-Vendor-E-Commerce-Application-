@@ -294,9 +294,10 @@ class CheckoutController extends Controller
                 VendorOrder::create([
                     'order_id' => $order->id,
                     'vendor_id' => $vendorId,
-                    'total_amount' => $vendorTotal,
+                    'vendor_order_number' => 'VO-' . $order->id . '-' . $vendorId . '-' . time(),
+                    'subtotal' => $vendorTotal,
                     'commission_amount' => $vendorCommission,
-                    'vendor_receives' => $vendorTotal - $vendorCommission,
+                    'vendor_amount' => $vendorTotal - $vendorCommission,
                     'status' => 'pending',
                 ]);
 

@@ -98,14 +98,15 @@ class JazzCashService
                 'reference_number' => $referenceNumber,
             ]);
 
-            return [
-                'success' => true,
-                'payment_id' => $payment->id,
-                'reference_number' => $referenceNumber,
-                'amount' => $order->total_amount,
-                'request_data' => $requestData,
-                'redirect_url' => $this->getPaymentRedirectUrl($requestData),
-            ];
+            // Store redirect URL in gateway_response for retrieval
+            $payment->update([
+                'gateway_response' => array_merge($payment->gateway_response ?? [], [
+                    'redirect_url' => $this->getPaymentRedirectUrl($requestData),
+                    'request_data' => $requestData,
+                ]),
+            ]);
+
+            return $payment;
         } catch (Exception $e) {
             Log::error('JazzCash payment initiation failed', [
                 'order_id' => $order->id,
