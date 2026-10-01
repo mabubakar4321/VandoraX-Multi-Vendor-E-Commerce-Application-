@@ -465,7 +465,7 @@
             padding-top: 32px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
-            font-size: 12px;
+            font-size: 12px;pl
             opacity: 0.6;
             letter-spacing: 0.5px;
         }

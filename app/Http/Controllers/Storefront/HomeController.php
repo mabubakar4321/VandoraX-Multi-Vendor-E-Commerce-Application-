@@ -23,6 +23,6 @@ class HomeController extends Controller
             ->latest()
             ->paginate(12);
 
-        return view('storefront.home-luxury', compact('categories', 'products'));
+        return view('storefront.home-redesigned', compact('categories', 'products'));
     }
 }

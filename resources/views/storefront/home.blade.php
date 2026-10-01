@@ -1,17 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VandoraX - Premium Marketplace</title>
+@extends('layouts.storefront')
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+@section('content')
+    <section class="hero-luxury">
+        <div class="row">
+            {{-- Content within hero-luxury starts around line 283 --}}
+            {{-- Need to leave hero-luxury styles in push('styles') and keep hero structure in content --}}
 
-    @vite(['resources/css/app.css'])
-
-    <style>
         * {
             margin: 0;
             padding: 0;
@@ -1125,19 +1119,6 @@
             updateWishlistCount();
         });
     </script>
-    <!-- Navigation -->
-    <nav class="nav-luxury">
-        <div class="logo-luxury">VandoraX</div>
-        <ul class="nav-links-luxury">
-            <li><a href="#categories" class="nav-link-luxury">Categories</a></li>
-            <li><a href="#products" class="nav-link-luxury">Products</a></li>
-            @auth
-                <li><a href="{{ auth()->user()->hasRole('customer') ? route('customer.dashboard') : route('vendor.dashboard') }}" class="nav-link-luxury">Dashboard</a></li>
-            @else
-                <li><a href="{{ route('customer.login') }}" class="nav-link-luxury">Sign In</a></li>
-            @endauth
-        </ul>
-    </nav>
 
     <!-- Hero Section -->
     <section class="hero-luxury">
@@ -1297,50 +1278,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer-luxury">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>For Customers</h3>
-                <ul>
-                    <li><a href="{{ route('storefront.products.index') }}">Browse Products</a></li>
-                    <li><a href="{{ route('customer.register') }}">Create Account</a></li>
-                    <li><a href="#">Shipping Info</a></li>
-                    <li><a href="#">Return Policy</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>For Sellers</h3>
-                <ul>
-                    <li><a href="{{ route('vendor.register') }}">Start Selling</a></li>
-                    <li><a href="{{ route('vendor.login') }}">Seller Login</a></li>
-                    <li><a href="#">Seller Guide</a></li>
-                    <li><a href="#">Commission Info</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Company</h3>
-                <ul>
-                    <li><a href="#">About VandoraX</a></li>
-                    <li><a href="#">Contact Us</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Follow Us</h3>
-                <ul>
-                    <li><a href="#">Facebook</a></li>
-                    <li><a href="#">Instagram</a></li>
-                    <li><a href="#">Twitter</a></li>
-                    <li><a href="#">LinkedIn</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 VandoraX Premium Marketplace. All rights reserved. ✨</p>
-        </div>
-    </footer>
 
     <script>
         // Smooth scroll behavior for navigation links

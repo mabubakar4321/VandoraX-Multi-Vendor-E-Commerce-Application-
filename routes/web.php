@@ -74,6 +74,18 @@ Route::middleware('auth')->prefix('checkout')->name('checkout.')->group(function
     Route::post('process', [\App\Http\Controllers\CheckoutController::class, 'process'])->name('process');
 });
 
+// Payment Routes (require authentication)
+Route::middleware('auth')->prefix('payment')->name('payment.')->group(function () {
+    Route::post('jazzcash/initiate', [\App\Http\Controllers\PaymentController::class, 'initiateJazzCashPayment'])->name('jazzcash.initiate');
+    Route::post('bank-transfer/create', [\App\Http\Controllers\PaymentController::class, 'initiateBankTransfer'])->name('bank-transfer.create');
+    Route::post('bank-transfer/verify', [\App\Http\Controllers\PaymentController::class, 'verifyBankTransfer'])->name('bank-transfer.verify');
+    Route::get('bank-details', [\App\Http\Controllers\PaymentController::class, 'getBankDetails'])->name('bank-details');
+    Route::post('validate-method', [\App\Http\Controllers\PaymentController::class, 'validatePaymentMethod'])->name('validate-method');
+});
+
+// Payment Webhooks (public, no authentication needed)
+Route::post('webhooks/jazzcash', [\App\Http\Controllers\PaymentController::class, 'handleJazzCashCallback'])->name('webhook.jazzcash');
+
 // Order Routes (require authentication)
 Route::middleware('auth')->prefix('orders')->name('order.')->group(function () {
     Route::get('/', [\App\Http\Controllers\OrderController::class, 'index'])->name('index');

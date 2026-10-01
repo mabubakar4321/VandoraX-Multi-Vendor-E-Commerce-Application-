@@ -1,365 +1,829 @@
-@extends('layouts.app')
+@extends('layouts.storefront')
 
-@section('title', 'Checkout')
+@section('title', 'Checkout - VandoraX')
+
+@push('styles')
+<style>
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px 24px;
+    }
+
+    /* Centered page wrapper with equal side space and bottom padding */
+    .checkout-page {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 1400px;
+        padding-top: 20px;
+        padding-bottom: 80px;
+    }
+
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(32px, 6vw, 48px);
+        font-weight: 900;
+        margin-bottom: 40px;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -1px;
+    }
+
+    .checkout-grid {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 32px;
+    }
+
+    /* ===== FORM SECTIONS ===== */
+    .form-section {
+        background: var(--primary-light);
+        border-radius: 16px;
+        border: 1px solid var(--border-light);
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        margin-bottom: 24px;
+    }
+
+    .section-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-light);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .section-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .section-content {
+        padding: 24px;
+    }
+
+    /* ===== FORM INPUTS ===== */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .form-row.full {
+        grid-template-columns: 1fr;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+    }
+
+    .form-required::after {
+        content: ' *';
+        color: var(--accent);
+    }
+
+    .form-input,
+    .form-textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--border-medium);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+        color: var(--text-muted);
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    /* ===== ADDRESS SELECTION ===== */
+    .address-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .address-option {
+        padding: 16px;
+        border: 2px solid var(--border-medium);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .address-option:hover {
+        border-color: var(--accent);
+        background: rgba(255, 165, 0, 0.08);
+    }
+
+    .address-option input[type="radio"] {
+        margin-right: 8px;
+        cursor: pointer;
+        accent-color: var(--accent);
+    }
+
+    .address-option.selected {
+        border-color: var(--accent);
+        background: rgba(255, 165, 0, 0.12);
+    }
+
+    .address-label {
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+    }
+
+    .address-detail {
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .btn-primary {
+        flex: 1;
+        padding: 14px 20px;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        color: var(--primary);
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
+    }
+
+    .btn-secondary {
+        flex: 1;
+        padding: 14px 20px;
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--border-medium);
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 165, 0, 0.1);
+        border-color: var(--accent);
+    }
+
+    .btn-toggle {
+        color: var(--accent);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-toggle:hover {
+        opacity: 0.8;
+    }
+
+    /* ===== ORDER SUMMARY SIDEBAR ===== */
+    .order-summary {
+        background: var(--primary-light);
+        border-radius: 16px;
+        border: 1px solid var(--border-light);
+        overflow: hidden;
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .summary-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .summary-header h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .summary-content {
+        padding: 24px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        font-size: 14px;
+    }
+
+    .summary-label {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .summary-value {
+        color: var(--text-primary);
+        font-weight: 700;
+    }
+
+    .summary-divider {
+        border-top: 1px solid var(--border-light);
+        margin: 16px 0;
+    }
+
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 18px;
+        font-weight: 800;
+        background: linear-gradient(135deg, rgba(255, 165, 0, 0.1) 0%, rgba(255, 165, 0, 0.05) 100%);
+        padding: 16px;
+        border-radius: 10px;
+        border: 1px solid var(--border-medium);
+        margin-top: 16px;
+    }
+
+    .summary-total .total-value {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .summary-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .btn-checkout {
+        padding: 14px 20px;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        color: var(--primary);
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+    }
+
+    .btn-checkout:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
+    }
+
+    .btn-checkout:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .btn-back {
+        padding: 14px 20px;
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--border-medium);
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+        background: rgba(255, 165, 0, 0.1);
+        border-color: var(--accent);
+    }
+
+    /* ===== ORDER ITEMS ===== */
+    .order-items {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 24px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .order-item {
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        border: 1px solid var(--border-light);
+        display: flex;
+        gap: 12px;
+        font-size: 13px;
+    }
+
+    .order-item-image {
+        width: 50px;
+        height: 50px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--border-light) 0%, var(--border-medium) 100%);
+        flex-shrink: 0;
+    }
+
+    .order-item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .order-item-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .order-item-name {
+        font-weight: 700;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .order-item-qty {
+        color: var(--text-secondary);
+    }
+
+    .order-item-price {
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+        .checkout-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .order-summary {
+            position: static;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .address-options {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 24px 16px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            padding: 16px 12px;
+        }
+
+        .section-content {
+            padding: 16px 12px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            padding: 20px 12px;
+        }
+
+        .page-title {
+            font-size: 24px;
+        }
+
+        .section-number {
+            width: 36px;
+            height: 36px;
+            font-size: 16px;
+        }
+
+        .section-header {
+            padding: 14px 12px;
+        }
+
+        .section-content {
+            padding: 14px 12px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .address-options {
+            grid-template-columns: 1fr;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+    }
+</style>
+@endpush
 
 @section('content')
-<div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <div class="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <h1 class="text-3xl font-bold text-gray-900">Checkout</h1>
+<div class="checkout-page" id="checkoutPage">
+<h1 class="page-title">Checkout</h1>
+
+<div class="checkout-grid">
+    <!-- Checkout Form -->
+    <div>
+        <!-- Step 1: Delivery Address -->
+        <div class="form-section">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <div class="section-title">Delivery Address</div>
+            </div>
+
+            <div class="section-content">
+                @if($addresses->count() > 0)
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 16px;">Select Saved Address</h4>
+                    <div class="address-options">
+                        @foreach($addresses as $address)
+                            <label class="address-option" id="addr-option-{{ $address->id }}" onclick="selectAddress({{ $address->id }})">
+                                <input type="radio" name="address_id" value="{{ $address->id }}" onchange="selectAddress({{ $address->id }})">
+                                <div class="address-label">
+                                    @if($address->label){{ $address->label }}@else Home @endif
+                                </div>
+                                <div class="address-detail">
+                                    {{ $address->full_name }}<br>
+                                    {{ $address->phone }}<br>
+                                    {{ $address->address_line_1 }}
+                                    @if($address->address_line_2), {{ $address->address_line_2 }} @endif
+                                    <br>
+                                    {{ $address->city }}, {{ $address->state_province }} {{ $address->postal_code }}
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+
+                    <div style="border-top: 1px solid var(--border-light); padding-top: 16px; margin-top: 16px;">
+                        <button type="button" onclick="toggleAddressForm()" class="btn-toggle">+ Add New Address</button>
+                    </div>
+                @endif
+
+                <!-- New Address Form -->
+                <div id="address-form" style="display: @if($addresses->count() > 0) none @endif; margin-top: 20px;">
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 16px;">Enter New Address</h4>
+                    <form id="new-address-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label form-required">Full Name</label>
+                                <input type="text" name="full_name" required class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label form-required">Phone</label>
+                                <input type="tel" name="phone" required class="form-input">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label form-required">Address Line 1</label>
+                            <input type="text" name="address_line_1" required class="form-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Address Line 2</label>
+                            <input type="text" name="address_line_2" class="form-input">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label form-required">City</label>
+                                <input type="text" name="city" required class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label form-required">State/Province</label>
+                                <input type="text" name="state_province" required class="form-input">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label form-required">Postal Code</label>
+                                <input type="text" name="postal_code" required class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label form-required">Country</label>
+                                <input type="text" name="country" required value="United States" class="form-input">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Delivery Instructions</label>
+                            <textarea name="delivery_instructions" class="form-textarea"></textarea>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="button" onclick="saveAddress()" class="btn-primary">Save Address</button>
+                            @if($addresses->count() > 0)
+                                <button type="button" onclick="toggleAddressForm()" class="btn-secondary">Cancel</button>
+                            @endif
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Order Review -->
+        <div class="form-section">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <div class="section-title">Order Summary</div>
+            </div>
+
+            <div class="section-content">
+                @foreach($itemsByVendor as $vendorId => $items)
+                    <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border-light);">
+                        <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 12px;">{{ $items->first()->product->vendor->user->name }}</h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            @foreach($items as $item)
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
+                                    <div>
+                                        <div style="font-weight: 700; color: var(--text-primary);">{{ $item->product->name }}</div>
+                                        @if($item->variant)
+                                            <div style="color: var(--text-secondary); margin-top: 2px;">{{ $item->variant->variant_value }}</div>
+                                        @endif
+                                        <div style="color: var(--text-muted); margin-top: 2px;">Qty: {{ $item->quantity }}</div>
+                                    </div>
+                                    <div style="font-weight: 700; color: var(--accent);">₨{{ number_format($item->getTotal()) }}</div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        @if(isset($vendorCommissions[$vendorId]))
+                            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-light); display: flex; flex-direction: column; gap: 6px; font-size: 13px;">
+                                <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                                    <span>Subtotal</span>
+                                    <span>₨{{ number_format($vendorCommissions[$vendorId]['subtotal']) }}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; color: var(--success); font-weight: 700;">
+                                    <span>Shipping</span>
+                                    <span>Free</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-weight: 700; background: rgba(255, 165, 0, 0.1); padding: 8px; border-radius: 6px;">
+                                    <span>Vendor Total</span>
+                                    <span style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">₨{{ number_format($vendorCommissions[$vendorId]['subtotal']) }}</span>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Checkout Form -->
-            <div class="lg:col-span-2">
-                <!-- Step 1: Delivery Address -->
-                <div class="bg-white rounded-lg shadow mb-6">
-                    <div class="px-6 py-4 border-b border-gray-200 bg-blue-50">
-                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                            <span class="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full mr-3 text-sm font-bold">1</span>
-                            Delivery Address
-                        </h2>
-                    </div>
+    <!-- Order Summary Sidebar -->
+    <div class="order-summary">
+        <div class="summary-header">
+            <h3>Order Total</h3>
+        </div>
 
-                    <div class="px-6 py-6">
-                        <!-- Saved Addresses -->
-                        @if($addresses->count() > 0)
-                            <div class="mb-6">
-                                <h3 class="text-sm font-semibold text-gray-900 mb-4">Select Saved Address</h3>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    @foreach($addresses as $address)
-                                        <label class="border-2 rounded-lg p-4 cursor-pointer transition"
-                                               id="addr-option-{{ $address->id }}"
-                                               onclick="selectAddress({{ $address->id }})"
-                                               style="border-color: #e5e7eb;">
-                                            <input type="radio" name="address_id" value="{{ $address->id }}"
-                                                   class="mr-3" onchange="selectAddress({{ $address->id }})">
-                                            <div class="ml-6">
-                                                @if($address->label)
-                                                    <p class="font-semibold text-gray-900">{{ $address->label }}</p>
-                                                @endif
-                                                <p class="text-sm text-gray-700 mt-1">{{ $address->full_name }}</p>
-                                                <p class="text-sm text-gray-600">{{ $address->phone }}</p>
-                                                <p class="text-sm text-gray-600">{{ $address->address_line_1 }}</p>
-                                                @if($address->address_line_2)
-                                                    <p class="text-sm text-gray-600">{{ $address->address_line_2 }}</p>
-                                                @endif
-                                                <p class="text-sm text-gray-600">{{ $address->city }}, {{ $address->state_province }} {{ $address->postal_code }}</p>
-                                            </div>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            <div class="border-t border-gray-200 pt-6">
-                                <button type="button" onclick="toggleAddressForm()"
-                                        class="text-blue-600 font-semibold hover:text-blue-800 transition">
-                                    + Add New Address
-                                </button>
-                            </div>
-                        @endif
-
-                        <!-- New Address Form -->
-                        <div id="address-form" class="mt-6" style="display: @if($addresses->count() > 0) none @endif;">
-                            <h3 class="text-sm font-semibold text-gray-900 mb-4">Enter New Address</h3>
-                            <form id="new-address-form" class="space-y-4">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-900 mb-1">Full Name *</label>
-                                        <input type="text" name="full_name" required
-                                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-900 mb-1">Phone *</label>
-                                        <input type="tel" name="phone" required
-                                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-900 mb-1">Address Line 1 *</label>
-                                    <input type="text" name="address_line_1" required
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-900 mb-1">Address Line 2</label>
-                                    <input type="text" name="address_line_2"
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                </div>
-
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-900 mb-1">City *</label>
-                                        <input type="text" name="city" required
-                                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-900 mb-1">State/Province *</label>
-                                        <input type="text" name="state_province" required
-                                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-900 mb-1">Postal Code *</label>
-                                        <input type="text" name="postal_code" required
-                                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-900 mb-1">Country *</label>
-                                    <input type="text" name="country" required value="United States"
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-900 mb-1">Delivery Instructions</label>
-                                    <textarea name="delivery_instructions" rows="3"
-                                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"></textarea>
-                                </div>
-
-                                <div class="flex gap-3">
-                                    <button type="button" onclick="saveAddress()"
-                                            class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
-                                        Save Address
-                                    </button>
-                                    @if($addresses->count() > 0)
-                                        <button type="button" onclick="toggleAddressForm()"
-                                                class="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-50 transition">
-                                            Cancel
-                                        </button>
-                                    @endif
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 2: Order Review -->
-                <div class="bg-white rounded-lg shadow">
-                    <div class="px-6 py-4 border-b border-gray-200 bg-blue-50">
-                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                            <span class="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full mr-3 text-sm font-bold">2</span>
-                            Order Summary
-                        </h2>
-                    </div>
-
-                    <div class="px-6 py-6">
-                        @foreach($itemsByVendor as $vendorId => $items)
-                            <div class="mb-6 pb-6 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
-                                <h3 class="font-semibold text-gray-900 mb-4">
-                                    {{ $items->first()->product->vendor->user->name }}
-                                </h3>
-                                <div class="space-y-3">
-                                    @foreach($items as $item)
-                                        <div class="flex justify-between text-sm">
-                                            <div>
-                                                <p class="text-gray-900">{{ $item->product->name }}</p>
-                                                @if($item->variant)
-                                                    <p class="text-gray-600">{{ $item->variant->variant_value }}</p>
-                                                @endif
-                                                <p class="text-gray-600">Qty: {{ $item->quantity }}</p>
-                                            </div>
-                                            <p class="text-gray-900 font-semibold">${{ number_format($item->getTotal(), 2) }}</p>
-                                        </div>
-                                    @endforeach
-                                </div>
-
-                                <!-- Vendor Breakdown -->
-                                @if(isset($vendorCommissions[$vendorId]))
-                                    <div class="mt-4 pt-4 border-t border-gray-200 space-y-2 text-sm">
-                                        <div class="flex justify-between text-gray-600">
-                                            <span>Subtotal</span>
-                                            <span>${{ number_format($vendorCommissions[$vendorId]['subtotal'], 2) }}</span>
-                                        </div>
-                                        <div class="flex justify-between text-gray-600">
-                                            <span>Shipping</span>
-                                            <span class="text-green-600 font-semibold">Free</span>
-                                        </div>
-                                        <div class="flex justify-between font-semibold text-gray-900">
-                                            <span>Vendor Total</span>
-                                            <span>${{ number_format($vendorCommissions[$vendorId]['subtotal'], 2) }}</span>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
+        <div class="summary-content">
+            <div class="summary-row">
+                <span class="summary-label">Items ({{ $totalItems }})</span>
+                <span class="summary-value">₨{{ number_format($subtotal) }}</span>
             </div>
 
-            <!-- Order Summary Sidebar -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-lg shadow sticky top-24">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-900">Order Total</h3>
-                    </div>
+            <div class="summary-row">
+                <span class="summary-label">Shipping</span>
+                <span class="summary-value" style="color: var(--success);">Free</span>
+            </div>
 
-                    <div class="px-6 py-6 space-y-4">
-                        <div class="flex justify-between text-gray-600">
-                            <span>Items ({{ $totalItems }})</span>
-                            <span>${{ number_format($subtotal, 2) }}</span>
-                        </div>
+            <div class="summary-row">
+                <span class="summary-label">Taxes</span>
+                <span class="summary-value">Calculated</span>
+            </div>
 
-                        <div class="flex justify-between text-gray-600">
-                            <span>Shipping</span>
-                            <span class="text-green-600 font-semibold">Free</span>
-                        </div>
+            <div class="summary-divider"></div>
 
-                        <div class="flex justify-between text-gray-600">
-                            <span>Taxes</span>
-                            <span>Calculated at checkout</span>
-                        </div>
+            <div class="summary-total">
+                <span class="summary-label">Total</span>
+                <span class="total-value">₨{{ number_format($subtotal) }}</span>
+            </div>
 
-                        <div class="border-t border-gray-200 pt-4 flex justify-between text-lg font-bold text-gray-900">
-                            <span>Total</span>
-                            <span>${{ number_format($subtotal, 2) }}</span>
-                        </div>
-                    </div>
+            <div class="summary-actions">
+                <button onclick="processCheckout()" id="checkout-btn" class="btn-checkout">Place Order</button>
+                <a href="{{ route('cart.index') }}" class="btn-back">Back to Cart</a>
+            </div>
 
-                    <div class="px-6 py-4 border-t border-gray-200 space-y-3">
-                        <button onclick="processCheckout()"
-                                id="checkout-btn"
-                                class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:bg-gray-400">
-                            Place Order
-                        </button>
-
-                        <a href="{{ route('cart.index') }}"
-                           class="block w-full text-center border border-gray-300 text-gray-700 px-4 py-3 rounded-lg font-semibold hover:bg-gray-50 transition">
-                            Back to Cart
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Items by Vendor -->
-                <div class="bg-white rounded-lg shadow mt-6">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="font-semibold text-gray-900">Items</h3>
-                    </div>
-                    <div class="divide-y divide-gray-200">
-                        @foreach($itemsByVendor as $vendorId => $items)
-                            @foreach($items as $item)
-                                <div class="px-6 py-4 flex gap-3">
-                                    @if($item->product->mainImage())
-                                        <img src="{{ asset('storage/' . $item->product->mainImage()->image_path) }}"
-                                             alt="{{ $item->product->name }}"
-                                             class="w-16 h-16 object-cover rounded">
-                                    @else
-                                        <div class="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
-                                            <span class="text-gray-400 text-xs">No image</span>
-                                        </div>
-                                    @endif
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-semibold text-gray-900 truncate">{{ $item->product->name }}</p>
-                                        <p class="text-sm text-gray-600">Qty: {{ $item->quantity }}</p>
-                                        <p class="text-sm font-semibold text-gray-900 mt-1">${{ number_format($item->price, 2) }}</p>
-                                    </div>
+            <div class="order-items">
+                @foreach($itemsByVendor as $vendorId => $items)
+                    @foreach($items as $item)
+                        <div class="order-item">
+                            @if($item->product->mainImage())
+                                <div class="order-item-image">
+                                    <img src="{{ asset('storage/' . $item->product->mainImage()->image_path) }}" alt="{{ $item->product->name }}">
                                 </div>
-                            @endforeach
-                        @endforeach
-                    </div>
-                </div>
+                            @else
+                                <div class="order-item-image" style="display: flex; align-items: center; justify-content: center;">📦</div>
+                            @endif
+                            <div class="order-item-info">
+                                <div class="order-item-name">{{ $item->product->name }}</div>
+                                <div class="order-item-qty">Qty: {{ $item->quantity }}</div>
+                                <div class="order-item-price">₨{{ number_format($item->price) }}</div>
+                            </div>
+                        </div>
+                    @endforeach
+                @endforeach
             </div>
         </div>
     </div>
 </div>
-
+</div>
 <script>
-let selectedAddressId = @json($defaultAddress ? $defaultAddress->id : null);
-
-function selectAddress(addressId) {
-    selectedAddressId = addressId;
-    // Update UI
-    document.querySelectorAll('[id^="addr-option-"]').forEach(el => {
-        el.style.borderColor = '#e5e7eb';
-    });
-    document.getElementById('addr-option-' + addressId).style.borderColor = '#2563eb';
-}
-
-function toggleAddressForm() {
-    const form = document.getElementById('address-form');
-    form.style.display = form.style.display === 'none' ? 'block' : 'none';
-}
-
-function saveAddress() {
-    const form = document.getElementById('new-address-form');
-    const formData = new FormData(form);
-
-    fetch('{{ route('checkout.address.store') }}', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json',
-        },
-        body: formData
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            alert('Address saved successfully!');
-            location.reload();
-        } else {
-            alert('Error: ' + data.message);
+    (function () {
+        function centerCheckoutPage() {
+            var el = document.getElementById('checkoutPage');
+            if (!el) return;
+            el.style.marginLeft = '0px';
+            var docW = document.documentElement.clientWidth;
+            var w = Math.min(1400, docW - 32);
+            el.style.width = w + 'px';
+            var left = el.getBoundingClientRect().left + window.pageXOffset;
+            el.style.marginLeft = (((docW - w) / 2) - left) + 'px';
         }
-    })
-    .catch(e => {
-        console.error('Error:', e);
-        alert('An error occurred. Please try again.');
-    });
-}
-
-function processCheckout() {
-    if (!selectedAddressId) {
-        alert('Please select or add a delivery address.');
-        return;
-    }
-
-    const btn = document.getElementById('checkout-btn');
-    btn.disabled = true;
-    btn.textContent = 'Processing...';
-
-    fetch('{{ route('checkout.process') }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-            address_id: selectedAddressId
-        })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            if (data.redirect) {
-                window.location.href = data.redirect;
-            }
-        } else {
-            alert('Error: ' + data.message);
-            if (data.issues) {
-                console.log('Issues:', data.issues);
-            }
-            btn.disabled = false;
-            btn.textContent = 'Place Order';
-        }
-    })
-    .catch(e => {
-        console.error('Error:', e);
-        alert('An error occurred. Please try again.');
-        btn.disabled = false;
-        btn.textContent = 'Place Order';
-    });
-}
-
-// Set default address on load
-window.addEventListener('load', function() {
-    if (selectedAddressId) {
-        selectAddress(selectedAddressId);
-    }
-});
+        centerCheckoutPage();
+        window.addEventListener('load', centerCheckoutPage);
+        window.addEventListener('resize', centerCheckoutPage);
+    })();
 </script>
 @endsection
+
+@push('scripts')
+    <script>
+        let selectedAddressId = @json($defaultAddress ? $defaultAddress->id : null);
+
+        function selectAddress(addressId) {
+            selectedAddressId = addressId;
+            document.querySelectorAll('[id^="addr-option-"]').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.getElementById('addr-option-' + addressId).classList.add('selected');
+        }
+
+        function toggleAddressForm() {
+            const form = document.getElementById('address-form');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function saveAddress() {
+            const form = document.getElementById('new-address-form');
+            const formData = new FormData(form);
+
+            fetch('{{ route('checkout.address.store') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                },
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Address saved successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(e => {
+                console.error('Error:', e);
+                alert('An error occurred. Please try again.');
+            });
+        }
+
+        function processCheckout() {
+            if (!selectedAddressId) {
+                alert('Please select or add a delivery address.');
+                return;
+            }
+
+            const btn = document.getElementById('checkout-btn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+
+            fetch('{{ route('checkout.process') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    address_id: selectedAddressId
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                } else {
+                    alert('Error: ' + data.message);
+                    if (data.issues) {
+                        console.log('Issues:', data.issues);
+                    }
+                    btn.disabled = false;
+                    btn.textContent = 'Place Order';
+                }
+            })
+            .catch(e => {
+                console.error('Error:', e);
+                alert('An error occurred. Please try again.');
+                btn.disabled = false;
+                btn.textContent = 'Place Order';
+            });
+        }
+
+        window.addEventListener('load', function() {
+            if (selectedAddressId) {
+                selectAddress(selectedAddressId);
+            }
+        });
+    </script>
+@endpush
