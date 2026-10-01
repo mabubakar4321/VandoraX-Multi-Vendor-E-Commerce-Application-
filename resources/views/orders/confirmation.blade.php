@@ -94,10 +94,10 @@
                                         <div class="mt-2 flex justify-between">
                                             <div>
                                                 <p class="text-sm text-gray-600">Quantity: <span class="font-semibold">{{ $item->quantity }}</span></p>
-                                                <p class="text-sm text-gray-600">Unit Price: <span class="font-semibold">${{ number_format($item->price_at_purchase, 2) }}</span></p>
+                                                <p class="text-sm text-gray-600">Unit Price: <span class="font-semibold">₨{{ number_format($item->price_at_purchase) }}</span></p>
                                             </div>
                                             <p class="text-sm font-semibold text-gray-900">
-                                                ${{ number_format($item->total_amount, 2) }}
+                                                ₨{{ number_format($item->total_amount) }}
                                             </p>
                                         </div>
                                     </div>
@@ -108,7 +108,7 @@
                             <div class="px-6 py-4 bg-gray-50">
                                 <div class="flex justify-between font-semibold text-gray-900">
                                     <span>Vendor Total</span>
-                                    <span>${{ number_format($items->sum('total_amount'), 2) }}</span>
+                                    <span>₨{{ number_format($items->sum('total_amount')) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -126,7 +126,7 @@
                     <div class="px-6 py-6 space-y-4">
                         <div class="flex justify-between text-gray-600">
                             <span>Subtotal</span>
-                            <span>${{ number_format($order->total_amount, 2) }}</span>
+                            <span>₨{{ number_format($order->total_amount) }}</span>
                         </div>
 
                         <div class="flex justify-between text-gray-600">
@@ -141,7 +141,7 @@
 
                         <div class="border-t border-gray-200 pt-4 flex justify-between text-lg font-bold text-gray-900">
                             <span>Total</span>
-                            <span>${{ number_format($order->total_amount, 2) }}</span>
+                            <span>₨{{ number_format($order->total_amount) }}</span>
                         </div>
                     </div>
 
@@ -149,10 +149,18 @@
                         <div class="bg-blue-50 rounded-lg p-4">
                             <p class="text-sm font-semibold text-blue-900">Payment Status</p>
                             <p class="text-sm text-blue-700 mt-1 capitalize">
-                                @if($order->payment_status === 'completed')
+                                @php
+                                    // If no payment record exists, it's Cash on Delivery
+                                    $hasCOD = !$order->payment;
+                                @endphp
+                                @if($hasCOD)
+                                    <span class="text-orange-600 font-semibold">⚠ Not Paid (Cash on Delivery)</span>
+                                @elseif($order->payment_status === 'completed')
                                     <span class="text-green-600 font-semibold">✓ Paid</span>
+                                @elseif($order->payment_status === 'pending')
+                                    <span class="text-yellow-600 font-semibold">⏳ Pending Payment</span>
                                 @else
-                                    {{ $order->payment_status }}
+                                    <span class="capitalize">{{ $order->payment_status }}</span>
                                 @endif
                             </p>
                         </div>
