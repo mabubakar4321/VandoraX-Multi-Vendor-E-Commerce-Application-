@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Review;
 use Illuminate\Http\Request;
 
 class ProductController
@@ -41,7 +42,7 @@ class ProductController
         return view('storefront.products.index', compact('products', 'categories'));
     }
 
-    public function show(Product $product)
+    public function show(Request $request, Product $product)
     {
         abort_unless(
             $product->moderation_status === 'approved'
@@ -76,6 +77,40 @@ class ProductController
             ->take(4)
             ->get();
 
-        return view('storefront.products.show', compact('product', 'relatedProducts', 'vendorProducts'));
+        $reviews = Review::where('product_id', $product->id)
+            ->where('status', 'approved')
+            ->with(['customer', 'images', 'response.vendor'])
+            ->when($request->input('sort'), function ($query) use ($request) {
+                match ($request->input('sort')) {
+                    'recent' => $query->latest(),
+                    'highest' => $query->orderByDesc('product_rating'),
+                    'lowest' => $query->orderBy('product_rating'),
+                    default => $query->orderByDesc('is_helpful_count'),
+                };
+            }, fn ($q) => $q->orderByDesc('is_helpful_count'))
+            ->paginate(10)
+            ->withQueryString();
+
+        $ratingBreakdown = Review::where('product_id', $product->id)
+            ->where('status', 'approved')
+            ->selectRaw('product_rating, COUNT(*) as count')
+            ->groupBy('product_rating')
+            ->pluck('count', 'product_rating');
+
+        $canReview = false;
+        if (auth()->check() && auth()->user()->hasRole('customer')) {
+            $hasPurchased = \App\Models\OrderItem::whereHas('order', function ($q) {
+                $q->where('customer_id', auth()->id())
+                  ->where('status', 'delivered');
+            })->where('product_id', $product->id)->exists();
+
+            $hasReviewed = Review::where('product_id', $product->id)
+                ->where('customer_id', auth()->id())
+                ->exists();
+
+            $canReview = $hasPurchased && !$hasReviewed;
+        }
+
+        return view('storefront.products.show', compact('product', 'relatedProducts', 'vendorProducts', 'reviews', 'ratingBreakdown', 'canReview'));
     }
 }

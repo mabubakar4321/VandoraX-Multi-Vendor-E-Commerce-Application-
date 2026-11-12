@@ -4,6 +4,13 @@
 
 @push('styles')
 <style>
+    #stripe-payment-element { min-height: 120px; padding: 12px; background: #fff; border-radius: 8px; }
+    #stripe-payment-error { display: none; margin-top: 10px; color: var(--error); font-size: 13px; }
+</style>
+@endpush
+
+@push('styles')
+<style>
     .container {
         max-width: 1400px;
         margin: 0 auto;
@@ -500,6 +507,388 @@
             flex-direction: column;
         }
     }
+
+    /* Storefront checkout theme */
+    .checkout-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 8px 0 64px;
+        color: #0e2a22;
+        width: 100%;
+        min-width: 0;
+        overflow-x: clip;
+    }
+
+    .checkout-page *,
+    .checkout-page *::before,
+    .checkout-page *::after {
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+
+    .checkout-page .page-title {
+        margin: 0 0 32px;
+        color: #0e2a22;
+        font-family: var(--font-display), sans-serif;
+        font-size: clamp(2rem, 5vw, 3rem);
+        letter-spacing: -0.04em;
+        background: none;
+        -webkit-text-fill-color: currentColor;
+    }
+
+    .checkout-page .checkout-grid {
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 24px;
+        align-items: start;
+        min-width: 0;
+    }
+
+    .checkout-page .checkout-grid > *,
+    .checkout-page .form-section,
+    .checkout-page .order-summary {
+        min-width: 0;
+    }
+
+    .checkout-page .form-section,
+    .checkout-page .order-summary {
+        background: #fff;
+        border: 1px solid #e4eae5;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(14, 42, 34, 0.06);
+    }
+
+    .checkout-page .form-section { margin-bottom: 20px; }
+
+    .checkout-page .section-header,
+    .checkout-page .summary-header {
+        padding: 16px 20px;
+        background: #f5f7f4;
+        border-bottom: 1px solid #e4eae5;
+    }
+
+    .checkout-page .section-number {
+        width: 34px;
+        height: 34px;
+        background: #f2b705;
+        color: #0e2a22;
+        font-size: 0.9rem;
+    }
+
+    .checkout-page .section-title,
+    .checkout-page .summary-header h3 {
+        color: #0e2a22;
+        font-family: var(--font-display), sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .checkout-page .section-content,
+    .checkout-page .summary-content {
+        padding: 20px;
+    }
+
+    .checkout-page .form-label,
+    .checkout-page .address-label,
+    .checkout-page .section-content h4 {
+        color: #0e2a22 !important;
+    }
+
+    .checkout-page .form-input,
+    .checkout-page .form-textarea {
+        border-color: #c8d6ce;
+        background: #fff;
+        color: #0e2a22;
+    }
+
+    .checkout-page .form-input::placeholder,
+    .checkout-page .form-textarea::placeholder,
+    .checkout-page .address-detail {
+        color: rgba(14, 42, 34, 0.62);
+    }
+
+    .checkout-page .form-input:focus,
+    .checkout-page .form-textarea:focus {
+        border-color: #1e6f5c;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(30, 111, 92, 0.12);
+    }
+
+    .checkout-page .address-option,
+    .checkout-page .payment-option {
+        border-color: #c8d6ce !important;
+        background: #fff !important;
+    }
+
+    .checkout-page .address-option:hover,
+    .checkout-page .payment-option:hover,
+    .checkout-page .address-option.selected,
+    .checkout-page .payment-option.selected {
+        border-color: #f2b705 !important;
+        background: rgba(242, 183, 5, 0.08) !important;
+    }
+
+    .checkout-page .payment-option div[style*="font-weight"],
+    .checkout-page .payment-option div[style*="font-size"] {
+        color: #0e2a22 !important;
+    }
+
+    .checkout-page .payment-option div[style*="font-size: 13px"] {
+        color: rgba(14, 42, 34, 0.68) !important;
+    }
+
+    .checkout-page .btn-toggle {
+        color: #1e6f5c;
+    }
+
+    .checkout-page .btn-checkout {
+        background: #f2b705;
+        color: #0e2a22;
+        box-shadow: 0 8px 18px rgba(242, 183, 5, 0.2);
+    }
+
+    .checkout-page .btn-back {
+        background: #fff;
+        border-color: #c8d6ce;
+        color: #0e2a22;
+    }
+
+    .checkout-page .btn-back:hover {
+        background: #f5f7f4;
+        border-color: #1e6f5c;
+    }
+
+    .checkout-page .order-summary {
+        position: static;
+    }
+
+    .checkout-page .summary-label,
+    .checkout-page .summary-value {
+        color: #0e2a22;
+    }
+
+    .checkout-page .summary-label {
+        color: rgba(14, 42, 34, 0.68);
+    }
+
+    .checkout-page .summary-divider {
+        border-color: #e4eae5;
+    }
+
+    .checkout-page .summary-total {
+        margin-top: 14px;
+        padding: 14px;
+        border-color: #c8d6ce;
+        background: rgba(242, 183, 5, 0.08);
+    }
+
+    .checkout-page .summary-total .total-value {
+        color: #0e2a22;
+        background: none;
+        -webkit-text-fill-color: currentColor;
+    }
+
+    .checkout-page .order-items {
+        max-height: 360px;
+        margin-top: 20px;
+    }
+
+    .checkout-page .order-item {
+        border-color: #e4eae5;
+        background: #f5f7f4;
+    }
+
+    .checkout-page .order-item-name,
+    .checkout-page .order-item-price {
+        color: #0e2a22;
+    }
+
+    .checkout-page .order-item-qty {
+        color: rgba(14, 42, 34, 0.68);
+    }
+
+    #global-message {
+        position: fixed;
+        top: 76px;
+        right: 24px;
+        z-index: 9999;
+        display: grid;
+        gap: 10px;
+        width: min(390px, calc(100vw - 32px));
+    }
+
+    #global-message .checkout-message {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 42px 14px 16px;
+        border: 1px solid #e4eae5;
+        border-left: 4px solid #1e6f5c;
+        border-radius: 12px;
+        background: #fff;
+        color: #0e2a22;
+        box-shadow: 0 14px 34px rgba(14, 42, 34, 0.16);
+        font-size: 0.86rem;
+        font-weight: 600;
+        line-height: 1.5;
+        animation: checkout-message-in 0.25s ease both;
+    }
+
+    #global-message .checkout-message.success { border-left-color: #1e7a4b; }
+    #global-message .checkout-message.error { border-left-color: #b23a2e; }
+    #global-message .checkout-message.warning { border-left-color: #f2b705; }
+    #global-message .checkout-message.info { border-left-color: #1e6f5c; }
+
+    #global-message .checkout-message-close {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        width: 26px;
+        height: 26px;
+        border: 0;
+        border-radius: 50%;
+        background: #f5f7f4;
+        color: #0e2a22;
+        cursor: pointer;
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    #global-message .checkout-message-close:hover { background: #e4eae5; }
+
+    #loading-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(8, 24, 19, 0.62);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+
+    #loading-overlay .loading-card {
+        width: min(390px, 100%);
+        padding: 30px 26px 26px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 20px;
+        background: #fff;
+        color: #0e2a22;
+        text-align: center;
+        box-shadow: 0 24px 70px rgba(8, 24, 19, 0.28);
+    }
+
+    #loading-overlay .loading-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 18px;
+        border: 4px solid #e4eae5;
+        border-top-color: #f2b705;
+        border-right-color: #1e6f5c;
+        border-radius: 50%;
+        animation: checkout-loading-spin 0.9s linear infinite;
+    }
+
+    #loading-overlay .loading-icon::after {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #f2b705;
+    }
+
+    #loading-overlay .loading-title {
+        margin: 0;
+        color: #0e2a22;
+        font-family: var(--font-display), sans-serif;
+        font-size: 1.15rem;
+        font-weight: 800;
+    }
+
+    #loading-overlay .loading-message {
+        margin: 8px 0 0;
+        color: rgba(14, 42, 34, 0.68);
+        font-size: 0.86rem;
+        line-height: 1.5;
+    }
+
+    @keyframes checkout-loading-spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @keyframes checkout-message-in {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1180px) {
+        .checkout-page .checkout-grid { grid-template-columns: 1fr; }
+        .checkout-page .order-summary { position: static; }
+        .checkout-page .order-summary { order: initial; }
+        .checkout-page .order-items { max-height: none; }
+    }
+
+    @media (max-width: 640px) {
+        .checkout-page { padding: 0 0 48px; }
+        .checkout-page .page-title { margin-bottom: 24px; }
+        .checkout-page .section-header,
+        .checkout-page .section-content,
+        .checkout-page .summary-header,
+        .checkout-page .summary-content {
+            padding: 16px;
+        }
+
+        #global-message {
+            top: 64px;
+            right: 16px;
+            width: calc(100vw - 32px);
+        }
+
+        .checkout-page .payment-option {
+            min-width: 0;
+        }
+
+        .checkout-page #payment-form,
+        .checkout-page #payment-details,
+        .checkout-page #stripe-payment-element {
+            min-width: 0;
+            width: 100%;
+        }
+
+        .checkout-page .order-summary {
+            margin-bottom: 4px;
+        }
+
+        .checkout-page .order-items {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .checkout-page .order-item {
+            min-width: 0;
+            padding: 10px;
+        }
+
+        .checkout-page .order-item-image {
+            width: 42px;
+            height: 42px;
+        }
+
+        .checkout-page .order-item-name {
+            font-size: 0.75rem;
+        }
+
+        .checkout-page .btn-checkout,
+        .checkout-page .btn-back {
+            width: 100%;
+        }
+    }
 </style>
 @endpush
 
@@ -616,13 +1005,10 @@
 
             <div class="section-content">
                 <div style="display: flex; flex-direction: column; gap: 16px;">
-                    <!-- JazzCash Option -->
-                    <label class="payment-option" id="payment-jazzcash-label" onclick="selectPaymentMethod('jazzcash')" style="display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 2px solid var(--border-medium); border-radius: 10px; cursor: pointer; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.03);">
-                        <input type="radio" name="payment_method" value="jazzcash" onchange="selectPaymentMethod('jazzcash')" style="margin-top: 4px; cursor: pointer; accent-color: var(--accent);">
-                        <div style="flex: 1;">
-                            <div style="font-weight: 700; font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">📱 JazzCash Mobile Payment</div>
-                            <div style="font-size: 13px; color: var(--text-secondary);">Pay directly from your JazzCash account - Instant confirmation</div>
-                        </div>
+                    <!-- Card Option -->
+                    <label class="payment-option" id="payment-card-label" onclick="selectPaymentMethod('card')" style="display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 2px solid var(--border-medium); border-radius: 10px; cursor: pointer; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.03);">
+                        <input type="radio" name="payment_method" value="card" onchange="selectPaymentMethod('card')" style="margin-top: 4px; cursor: pointer; accent-color: var(--accent);">
+                        <div style="flex: 1;"><div style="font-weight: 700; font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">💳 Credit / Debit Card</div><div style="font-size: 13px; color: var(--text-secondary);">Secure card payment powered by Stripe</div></div>
                     </label>
 
                     <!-- Bank Transfer Option -->
@@ -645,46 +1031,74 @@
                 </div>
 
                 <!-- Payment Method Details -->
+                <form id="payment-form" enctype="multipart/form-data">
                 <div id="payment-details" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-light);">
-                    <!-- JazzCash Details -->
-                    <div id="jazzcash-details" style="display: none;">
-                        <div class="form-group">
-                            <label class="form-label form-required">JazzCash Account Number</label>
-                            <input type="tel" id="jazzcash_number" name="jazzcash_number" placeholder="03001234567 or 92XXXXXXXXX" class="form-input" pattern="^(\+92|0|92)?3\d{9}$">
-                            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">Format: 03XXXXXXXXX or 92XXXXXXXXXX</div>
-                        </div>
+                    <!-- Stripe Card Details -->
+                    <div id="card-details" style="display: none;">
+                        <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">Secure Card Details</h4>
+                        <div id="stripe-payment-element"></div>
+                        <div id="stripe-fake-notice" style="display:none; background: rgba(16,185,129,0.12); border: 1px solid #10b981; padding: 12px 14px; border-radius: 8px; color: #065f46; font-size: 13px; line-height: 1.5;"></div>
+                        <p id="stripe-payment-error"></p>
+                        <p style="margin-top: 10px; color: var(--text-secondary); font-size: 12px;">Your card details are securely handled by Stripe and are never stored on our server.</p>
                     </div>
 
                     <!-- Bank Transfer Details -->
                     <div id="bank_transfer-details" style="display: none;">
                         <div style="background: rgba(255, 165, 0, 0.08); padding: 16px; border-radius: 10px; border-left: 3px solid var(--accent); margin-bottom: 16px;">
-                            <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">Bank Account Details</h4>
+                            <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">Company Bank Account Information</h4>
+                            @php
+                                $bankDetails = config('bank-transfer.bank');
+                            @endphp
                             <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
                                 <div>
                                     <span style="color: var(--text-secondary);">Bank Name:</span>
-                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ config('bank-transfer.bank_name') }}</span>
+                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ $bankDetails['name'] ?? '' }}</span>
                                 </div>
                                 <div>
                                     <span style="color: var(--text-secondary);">Account Title:</span>
-                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ config('bank-transfer.account_name') }}</span>
+                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ $bankDetails['account_title'] ?? '' }}</span>
                                 </div>
                                 <div>
                                     <span style="color: var(--text-secondary);">Account Number:</span>
-                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ config('bank-transfer.account_number') }}</span>
+                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ $bankDetails['account_number'] ?? '' }}</span>
                                 </div>
                                 <div>
                                     <span style="color: var(--text-secondary);">IBAN:</span>
-                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ config('bank-transfer.iban') }}</span>
-                                </div>
-                                <div>
-                                    <span style="color: var(--text-secondary);">Swift Code:</span>
-                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ config('bank-transfer.swift_code') }}</span>
+                                    <span style="font-weight: 700; color: var(--text-primary); margin-left: 8px;">{{ $bankDetails['iban'] ?? '' }}</span>
                                 </div>
                             </div>
                         </div>
-                        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">After placing your order, you'll receive an email with transfer instructions and a reference number. Please include the reference number with your transfer so we can match and confirm your payment.</p>
+
+                        <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">Your Payment Details</h4>
+                        <div class="form-group">
+                            <label class="form-label form-required">Customer Name</label>
+                            <input type="text" id="bank_payer_name" name="bank_payer_name" placeholder="Enter the name of the person making the payment" class="form-input">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label form-required">Payment App / Platform</label>
+                                <input type="text" id="bank_payment_app" name="bank_payment_app" placeholder="e.g. HBL Mobile, Easypaisa, ATM" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label form-required">Payment Source</label>
+                                <input type="text" id="bank_payment_source" name="bank_payment_source" placeholder="e.g. Personal bank account" class="form-input">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label form-required">Customer Account Number</label>
+                            <input type="text" id="bank_customer_account_number" name="bank_customer_account_number" placeholder="Account number used for the payment" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Payment Amount</label>
+                            <input type="text" readonly value="₨{{ number_format($subtotal, 2) }}" class="form-input" style="background: rgba(255, 255, 255, 0.05); cursor: not-allowed;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label form-required">Payment Slip / Receipt Image</label>
+                            <input type="file" id="payment_slip" name="payment_slip" accept="image/*" required class="form-input">
+                        </div>
                     </div>
                 </div>
+                </form>
             </div>
         </div>
 
@@ -794,63 +1208,71 @@
     </div>
 </div>
 </div>
-<script>
-    (function () {
-        function centerCheckoutPage() {
-            var el = document.getElementById('checkoutPage');
-            if (!el) return;
-            el.style.marginLeft = '0px';
-            var docW = document.documentElement.clientWidth;
-            var w = Math.min(1400, docW - 32);
-            el.style.width = w + 'px';
-            var left = el.getBoundingClientRect().left + window.pageXOffset;
-            el.style.marginLeft = (((docW - w) / 2) - left) + 'px';
-        }
-        centerCheckoutPage();
-        window.addEventListener('load', centerCheckoutPage);
-        window.addEventListener('resize', centerCheckoutPage);
-    })();
-</script>
 @endsection
 
 @push('scripts')
+    <script src="https://js.stripe.com/v3/"></script>
     <script>
         let selectedAddressId = @json($defaultAddress ? $defaultAddress->id : null);
-        let selectedPaymentMethod = 'cod'; // Default to Cash on Delivery
+        let selectedPaymentMethod = 'cod';
+        let stripeInstance = null;
+        let stripeElements = null;
+        let pendingCardPayment = null;
+        let currentOrderId = null;
+        let retryCount = 0;
+        const MAX_RETRIES = 3;
+
+        function setButtonState(btn, state, text) {
+            btn.disabled = state !== 'idle';
+            btn.textContent = text;
+            btn.style.opacity = state === 'idle' ? '1' : '0.7';
+            btn.style.cursor = state === 'idle' ? 'pointer' : 'not-allowed';
+        }
+
+        function showGlobalMessage(type, message) {
+            let container = document.getElementById('global-message');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'global-message';
+                document.body.appendChild(container);
+            }
+            const msgEl = document.createElement('div');
+            msgEl.className = 'checkout-message ' + (type || 'info');
+            msgEl.innerHTML = '<span></span><button type="button" class="checkout-message-close" aria-label="Dismiss message">&times;</button>';
+            msgEl.querySelector('span').textContent = message;
+            msgEl.querySelector('button').addEventListener('click', () => msgEl.remove());
+            container.appendChild(msgEl);
+            setTimeout(() => {
+                if (!msgEl.isConnected) return;
+                msgEl.style.opacity = '0';
+                msgEl.style.transition = 'opacity .25s';
+                setTimeout(() => msgEl.remove(), 250);
+            }, 5000);
+        }
 
         function selectAddress(addressId) {
             selectedAddressId = addressId;
-            document.querySelectorAll('[id^="addr-option-"]').forEach(el => {
-                el.classList.remove('selected');
-            });
-            document.getElementById('addr-option-' + addressId).classList.add('selected');
+            document.querySelectorAll('[id^="addr-option-"]').forEach(el => el.classList.remove('selected'));
+            const el = document.getElementById('addr-option-' + addressId);
+            if (el) el.classList.add('selected');
         }
 
         function selectPaymentMethod(method) {
             selectedPaymentMethod = method;
-
-            // Update label styles
             document.querySelectorAll('.payment-option').forEach(el => {
                 el.style.borderColor = 'var(--border-medium)';
                 el.style.background = 'rgba(255, 255, 255, 0.03)';
             });
-
             const selectedLabel = document.getElementById('payment-' + method + '-label');
             if (selectedLabel) {
                 selectedLabel.style.borderColor = 'var(--accent)';
                 selectedLabel.style.background = 'rgba(255, 165, 0, 0.12)';
             }
-
-            // Hide all payment details
-            document.getElementById('jazzcash-details').style.display = 'none';
+            document.getElementById('card-details').style.display = 'none';
             document.getElementById('bank_transfer-details').style.display = 'none';
-
-            // Show selected method details
-            if (method === 'jazzcash') {
-                document.getElementById('jazzcash-details').style.display = 'block';
-            } else if (method === 'bank_transfer') {
-                document.getElementById('bank_transfer-details').style.display = 'block';
-            }
+            if (method === 'card') document.getElementById('card-details').style.display = 'block';
+            else if (method === 'bank_transfer') document.getElementById('bank_transfer-details').style.display = 'block';
+            hideStripeError();
         }
 
         function toggleAddressForm() {
@@ -861,106 +1283,259 @@
         function saveAddress() {
             const form = document.getElementById('new-address-form');
             const formData = new FormData(form);
-
             fetch('{{ route('checkout.address.store') }}', {
                 method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                },
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
                 body: formData
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Address saved successfully!');
-                    location.reload();
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(e => {
-                console.error('Error:', e);
-                alert('An error occurred. Please try again.');
-            });
+            }).then(r => r.json()).then(data => {
+                if (data.success) { showGlobalMessage('success', 'Address saved successfully!'); setTimeout(() => location.reload(), 800); }
+                else showGlobalMessage('error', data.message || 'Failed to save address');
+            }).catch(() => showGlobalMessage('error', 'Network error. Please try again.'));
         }
 
-        function processCheckout() {
-            if (!selectedAddressId) {
-                alert('Please select or add a delivery address.');
-                return;
-            }
+        function showStripeError(message) {
+            const error = document.getElementById('stripe-payment-error');
+            if (error) { error.textContent = message; error.style.display = 'block'; }
+        }
 
-            if (!selectedPaymentMethod) {
-                alert('Please select a payment method.');
-                return;
-            }
+        function hideStripeError() {
+            const error = document.getElementById('stripe-payment-error');
+            if (error) { error.textContent = ''; error.style.display = 'none'; }
+        }
 
-            // Validate payment method specific fields
-            if (selectedPaymentMethod === 'jazzcash') {
-                const mobileNumber = document.getElementById('jazzcash_number').value;
-                if (!mobileNumber) {
-                    alert('Please enter your JazzCash account number.');
-                    return;
-                }
+        function showLoadingOverlay(show) {
+            let overlay = document.getElementById('loading-overlay');
+            if (show && !overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'loading-overlay';
+                overlay.setAttribute('role', 'dialog');
+                overlay.setAttribute('aria-modal', 'true');
+                overlay.setAttribute('aria-label', 'Processing payment');
+                overlay.innerHTML = '<div class="loading-card"><div class="loading-icon" aria-hidden="true"></div><p class="loading-title">Processing your payment</p><p class="loading-message">Please keep this page open while we securely confirm your order.</p></div>';
+                document.body.appendChild(overlay);
+            } else if (!show && overlay) {
+                overlay.remove();
             }
+        }
+
+        async function processCheckout() {
+            if (pendingCardPayment) { confirmCardPayment(); return; }
+            if (!selectedAddressId) { showGlobalMessage('warning', 'Please select or add a delivery address.'); return; }
+            if (!selectedPaymentMethod) { showGlobalMessage('warning', 'Please select a payment method.'); return; }
 
             const btn = document.getElementById('checkout-btn');
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
+            const formData = new FormData();
+            formData.append('address_id', selectedAddressId);
+            formData.append('payment_method', selectedPaymentMethod);
 
-            const payloadData = {
-                address_id: selectedAddressId,
-                payment_method: selectedPaymentMethod
-            };
-
-            // Add payment method specific data
-            if (selectedPaymentMethod === 'jazzcash') {
-                payloadData.jazzcash_number = document.getElementById('jazzcash_number').value;
+            if (selectedPaymentMethod === 'bank_transfer') {
+                const payerName = document.getElementById('bank_payer_name').value.trim();
+                const paymentApp = document.getElementById('bank_payment_app').value.trim();
+                const paymentSource = document.getElementById('bank_payment_source').value.trim();
+                const customerAccountNumber = document.getElementById('bank_customer_account_number').value.trim();
+                const slip = document.getElementById('payment_slip').files[0];
+                if (!payerName || !paymentApp || !paymentSource || !customerAccountNumber || !slip) {
+                    showGlobalMessage('warning', 'Please provide all required bank transfer details and upload the slip.');
+                    return;
+                }
+                formData.append('bank_payer_name', payerName);
+                formData.append('bank_payment_app', paymentApp);
+                formData.append('bank_payment_source', paymentSource);
+                formData.append('bank_customer_account_number', customerAccountNumber);
+                formData.append('payment_slip', slip);
             }
 
-            fetch('{{ route('checkout.process') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify(payloadData)
-            })
-            .then(r => r.json())
-            .then(data => {
+            setButtonState(btn, 'loading', 'Processing...');
+            showLoadingOverlay(true);
+
+            try {
+                const response = await fetch('{{ route('checkout.process') }}', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                    body: formData
+                });
+                const data = await response.json();
+
                 if (data.success) {
-                    if (data.payment_method === 'jazzcash' && data.redirect) {
-                        // Redirect to JazzCash payment portal
-                        window.location.href = data.redirect;
-                    } else {
-                        alert(data.message);
-                        if (data.redirect) {
-                            window.location.href = data.redirect;
-                        }
+                    currentOrderId = data.order_id;
+                    if (selectedPaymentMethod === 'card') {
+                        showLoadingOverlay(false);
+                        prepareStripePayment(data, btn);
+                        return;
                     }
+                    showLoadingOverlay(false);
+                    showGlobalMessage('success', data.message || 'Order placed successfully!');
+                    if (data.redirect) setTimeout(() => window.location.href = data.redirect, 1000);
                 } else {
-                    alert('Error: ' + data.message);
-                    if (data.issues) {
-                        console.log('Issues:', data.issues);
+                    showLoadingOverlay(false);
+                    showGlobalMessage('error', data.message || 'An error occurred.');
+                    if (data.errors) {
+                        const errorMsg = Object.values(data.errors).flat().join(' ');
+                        showGlobalMessage('error', errorMsg);
                     }
-                    btn.disabled = false;
-                    btn.textContent = 'Place Order';
+                    setButtonState(btn, 'idle', 'Place Order');
                 }
-            })
-            .catch(e => {
-                console.error('Error:', e);
-                alert('An error occurred. Please try again.');
-                btn.disabled = false;
-                btn.textContent = 'Place Order';
-            });
+            } catch (e) {
+                showLoadingOverlay(false);
+                showGlobalMessage('error', 'Network error. Please check your connection and try again.');
+                setButtonState(btn, 'idle', 'Place Order');
+            }
+        }
+
+        function prepareStripePayment(data, btn) {
+            // ── FAKE / demo mode: no real Stripe keys. Backend already marked the order completed.
+            // Skip mounting Stripe Element entirely; just show a success notice and redirect.
+            if (data.stripe_is_fake || (data.stripe_client_secret && data.stripe_client_secret.includes('_secret_fake'))) {
+                pendingCardPayment = data;
+                document.getElementById('card-details').style.display = 'block';
+                document.getElementById('stripe-payment-element').style.display = 'none';
+                const fakeNote = document.getElementById('stripe-fake-notice');
+                if (fakeNote) {
+                    fakeNote.style.display = 'block';
+                    fakeNote.innerHTML = '&#9992; <strong>Demo mode:</strong> No real card needed. Your payment has been <strong>auto-approved</strong> (fake Stripe). Redirecting to confirmation&hellip; <br><small style="opacity:.8;">Set real <code>STRIPE_KEY</code> / <code>STRIPE_SECRET</code> in <code>.env</code> for live payments.</small>';
+                }
+                hideStripeError();
+                setButtonState(btn, 'loading', 'Payment approved — redirecting...');
+                showGlobalMessage('success', 'Demo payment approved. Opening confirmation page...');
+                setTimeout(() => { window.location.href = data.redirect; }, 1800);
+                return;
+            }
+
+            if (!data.stripe_client_secret || !data.stripe_publishable_key || typeof Stripe === 'undefined') {
+                showStripeError('Stripe is not configured. Please contact support.');
+                setButtonState(btn, 'idle', 'Place Order');
+                return;
+            }
+            hideStripeError();
+            // Restore element visibility if coming from a previous fake run
+            document.getElementById('stripe-payment-element').style.display = 'block';
+            const fakeNote2 = document.getElementById('stripe-fake-notice');
+            if (fakeNote2) fakeNote2.style.display = 'none';
+            try {
+                stripeInstance = Stripe(data.stripe_publishable_key);
+                stripeElements = stripeInstance.elements({ clientSecret: data.stripe_client_secret });
+                const paymentElement = stripeElements.create('payment', {
+                    layout: { type: 'tabs', defaultCollapsed: false }
+                });
+                paymentElement.mount('#stripe-payment-element');
+                paymentElement.on('change', (event) => {
+                    if (event.error) showStripeError(event.error.message);
+                    else hideStripeError();
+                });
+                pendingCardPayment = data;
+                setButtonState(btn, 'idle', 'Pay Now');
+                document.getElementById('card-details').style.display = 'block';
+                document.getElementById('stripe-payment-element').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                showGlobalMessage('info', 'Enter your card details below to complete payment.');
+            } catch (e) {
+                showStripeError('Failed to initialize payment form. Please refresh and try again.');
+                setButtonState(btn, 'idle', 'Place Order');
+            }
+        }
+
+        async function confirmCardPayment() {
+            const btn = document.getElementById('checkout-btn');
+            setButtonState(btn, 'loading', 'Processing payment...');
+            showLoadingOverlay(true);
+            hideStripeError();
+
+            try {
+                const result = await stripeInstance.confirmPayment({
+                    elements: stripeElements,
+                    redirect: 'if_required',
+                    confirmParams: { return_url: pendingCardPayment.redirect || window.location.href }
+                });
+
+                if (result.error) {
+                    showLoadingOverlay(false);
+                    if (result.error.type === 'card_error' || result.error.type === 'validation_error') {
+                        showStripeError(result.error.message);
+                    } else {
+                        showGlobalMessage('error', result.error.message || 'Payment failed. Please try again.');
+                    }
+                    if (retryCount < MAX_RETRIES) {
+                        retryCount++;
+                        setButtonState(btn, 'idle', 'Retry Payment (' + retryCount + '/' + MAX_RETRIES + ')');
+                        showGlobalMessage('warning', 'You can retry. Attempt ' + retryCount + ' of ' + MAX_RETRIES + '.');
+                    } else {
+                        setButtonState(btn, 'idle', 'Place Order');
+                        showGlobalMessage('error', 'Maximum retries reached. Please try a different payment method or contact support.');
+                        pendingCardPayment = null;
+                        retryCount = 0;
+                    }
+                    return;
+                }
+
+                if (result.paymentIntent) {
+                    const status = result.paymentIntent.status;
+                    if (status === 'succeeded') {
+                        showGlobalMessage('success', 'Payment successful! Redirecting...');
+                        try {
+                            await fetch('{{ url('payment/stripe/confirm') }}', {
+                                method: 'POST',
+                                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ payment_id: pendingCardPayment.payment_id || null, payment_intent_id: result.paymentIntent.id })
+                            });
+                        } catch (e) {}
+                        setTimeout(() => window.location.href = pendingCardPayment.redirect, 1500);
+                        return;
+                    }
+                    if (status === 'processing') {
+                        showGlobalMessage('info', 'Payment is being processed. You will receive a confirmation shortly.');
+                        setTimeout(() => window.location.href = pendingCardPayment.redirect, 2000);
+                        return;
+                    }
+                    if (status === 'requires_action') {
+                        showLoadingOverlay(false);
+                        showGlobalMessage('warning', 'Additional verification required. Please follow the prompts.');
+                        setButtonState(btn, 'idle', 'Complete Verification');
+                        return;
+                    }
+                }
+
+                showLoadingOverlay(false);
+                showGlobalMessage('error', 'Payment could not be completed. Please try again.');
+                setButtonState(btn, 'idle', 'Retry Payment');
+            } catch (e) {
+                showLoadingOverlay(false);
+                const msg = (e && e.message) ? e.message : String(e);
+                console.error('[Stripe confirmPayment exception]', e, { paymentId: pendingCardPayment?.payment_id, orderId: currentOrderId });
+                showGlobalMessage('error', msg || 'An unexpected error occurred. Please try again.');
+                showStripeError(msg || 'Unexpected error. Check console for details.');
+                setButtonState(btn, 'idle', 'Retry Payment');
+            }
+        }
+
+        async function retryStripePayment() {
+            if (!currentOrderId) { showGlobalMessage('error', 'No order to retry.'); return; }
+            const btn = document.getElementById('checkout-btn');
+            setButtonState(btn, 'loading', 'Retrying...');
+            showLoadingOverlay(true);
+            try {
+                const response = await fetch('{{ url('payment/stripe/retry') }}', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: currentOrderId })
+                });
+                const data = await response.json();
+                showLoadingOverlay(false);
+                if (data.success) {
+                    retryCount = 0;
+                    prepareStripePayment({ stripe_client_secret: data.client_secret, stripe_publishable_key: data.publishable_key, redirect: pendingCardPayment?.redirect, payment_id: data.payment_id }, btn);
+                    showGlobalMessage('info', 'New payment session created. Enter your card details.');
+                } else {
+                    showGlobalMessage('error', data.message || 'Retry failed.');
+                    setButtonState(btn, 'idle', 'Place Order');
+                }
+            } catch (e) {
+                showLoadingOverlay(false);
+                showGlobalMessage('error', 'Network error during retry.');
+                setButtonState(btn, 'idle', 'Place Order');
+            }
         }
 
         window.addEventListener('load', function() {
-            if (selectedAddressId) {
-                selectAddress(selectedAddressId);
-            }
-            // Initialize payment method display
+            if (selectedAddressId) selectAddress(selectedAddressId);
             selectPaymentMethod('cod');
         });
     </script>

@@ -13,46 +13,46 @@
             Back to Products
         </a>
         <h1 class="text-3xl font-bold text-gray-900">Bulk Import Products</h1>
-        <p class="text-gray-600 mt-1">Upload multiple products at once using CSV file</p>
+        <p class="text-gray-600 mt-1">Export, edit, and upload your complete product catalogue with CSV.</p>
     </div>
 
     <!-- Information Box -->
     <div class="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-lg mb-8">
         <h3 class="font-semibold text-blue-900">How to Use</h3>
         <ol class="text-sm text-blue-800 mt-3 space-y-2 list-decimal list-inside">
-            <li>Download the CSV template below</li>
-            <li>Fill in product details (required fields marked with *)</li>
+            <li>Download your current product catalogue as a CSV file</li>
+            <li>Edit the rows or add new products without changing the column names</li>
+            <li>Keep JSON values valid in the specifications and variants columns</li>
             <li>Upload your CSV file</li>
-            <li>Review the preview</li>
-            <li>Confirm to import</li>
+            <li>Products, inventory, variants, specifications, and existing image paths will be imported</li>
         </ol>
     </div>
 
     <!-- CSV Template Download -->
     <div class="bg-white rounded-lg shadow p-8 mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Step 1: Download Template</h2>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Step 1: Download Product CSV</h2>
         
         <div class="mb-6">
-            <p class="text-gray-600 mb-4">Download our CSV template with all required fields:</p>
+            <p class="text-gray-600 mb-4">Download all of your vendor products with complete supported details. If your catalogue is empty, the download contains the headers for a new import.</p>
             <a href="{{ route('vendor.products.import-template') }}" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                 </svg>
-                Download CSV Template
+                Download Product CSV
             </a>
         </div>
 
         <div class="border-t pt-6">
-            <h3 class="font-semibold text-gray-900 mb-3">Required Columns:</h3>
+            <h3 class="font-semibold text-gray-900 mb-3">CSV columns:</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                <div>✓ name* - Product name</div>
-                <div>✓ description* - Product description</div>
-                <div>✓ category_id* - Category ID</div>
-                <div>✓ base_price* - Price in PKR</div>
-                <div>✓ stock* - Quantity</div>
-                <div>✓ sku - SKU (optional)</div>
-                <div>✓ warranty - Warranty info</div>
-                <div>✓ delivery_time - Days to deliver</div>
+                <div>✓ name, description, category_id, base_price</div>
+                <div>✓ stock, sku, warranty, delivery_time_days</div>
+                <div>✓ status, moderation_status, is_visible</div>
+                <div>✓ dimensions, weight, material, brand, color_options</div>
+                <div>✓ specifications_json - product specifications</div>
+                <div>✓ variants_json - variant prices, stock, and SKUs</div>
+                <div>✓ image_paths - existing storage paths separated by |</div>
+                <div>✓ Images must already exist in storage to be attached</div>
             </div>
         </div>
     </div>

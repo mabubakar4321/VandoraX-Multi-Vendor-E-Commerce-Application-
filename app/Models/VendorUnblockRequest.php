@@ -11,18 +11,21 @@ class VendorUnblockRequest extends Model
 
     protected $fillable = [
         'vendor_id',
+        'improvements',
+        'reason_to_unblock',
+        'evidence_files',
         'reason',
-        'status',
         'admin_response',
+        'status',
         'reviewed_by',
         'reviewed_at',
     ];
 
     protected $casts = [
         'reviewed_at' => 'datetime',
+        'evidence_files' => 'array',
     ];
 
-    // Relationships
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
@@ -33,7 +36,6 @@ class VendorUnblockRequest extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
-    // Scopes
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
@@ -49,8 +51,7 @@ class VendorUnblockRequest extends Model
         return $query->where('status', 'rejected');
     }
 
-    // Methods
-    public function approve($userId)
+    public function approve(int $userId): void
     {
         $this->update([
             'status' => 'approved',
@@ -58,11 +59,13 @@ class VendorUnblockRequest extends Model
             'reviewed_at' => now(),
         ]);
 
-        // Unblock the vendor
-        $this->vendor->update(['status' => 'active']);
+        $vendor = $this->vendor;
+        $vendor->update(['status' => 'active', 'bad_reviews_count' => 0, 'requested_unblock' => false, 'unblock_message' => null]);
+
+        VendorBadReview::where('vendor_id', $vendor->id)->delete();
     }
 
-    public function reject($userId, $reason)
+    public function reject(int $userId, string $reason): void
     {
         $this->update([
             'status' => 'rejected',
@@ -70,5 +73,10 @@ class VendorUnblockRequest extends Model
             'reviewed_by' => $userId,
             'reviewed_at' => now(),
         ]);
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
     }
 }

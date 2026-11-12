@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
 
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/*',
+        ]);
+
         // --- our four middleware, given short names ---
         $middleware->alias([
             'admin'    => \App\Http\Middleware\AdminMiddleware::class,

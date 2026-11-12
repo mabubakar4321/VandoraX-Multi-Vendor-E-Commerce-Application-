@@ -14,6 +14,7 @@ class OrderItem extends Model
         'order_id',
         'product_id',
         'variant_id',
+        'vendor_order_id',
         'quantity',
         'price_at_purchase',
         'total_amount',
@@ -41,6 +42,16 @@ class OrderItem extends Model
     public function variant()
     {
         return $this->belongsTo(ProductVariant::class);
+    }
+
+    public function vendorOrder()
+    {
+        return $this->belongsTo(VendorOrder::class);
+    }
+
+    public function returns()
+    {
+        return $this->hasMany(ProductReturn::class);
     }
 
     // Scopes

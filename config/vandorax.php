@@ -21,7 +21,7 @@ return[
     'payout_frequency'=> 'weekly',
 
     // payment settings
-    'payment_gateways'=> ['stripe','jazzcash'],
+    'payment_gateways'=> ['stripe','bank_transfer'],
 
    // File Upload Limits
 
@@ -34,6 +34,10 @@ return[
     //currency
     'currency'=> 'PKR',
     'currency_symbol'=>'₨',
+
+    // Vendor order timeout
+    'vendor_confirm_reminder_hours' => 12,
+    'vendor_confirm_cancel_days'    => 7,
 
 ];
 

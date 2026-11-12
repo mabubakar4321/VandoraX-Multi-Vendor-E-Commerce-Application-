@@ -10,11 +10,14 @@ use App\Models\OrderAddress;
 use App\Models\VendorOrder;
 use App\Models\ProductInventoryLog;
 use App\Models\Payment;
-use App\Services\JazzCashService;
 use App\Services\BankTransferService;
+use App\Services\OrderService;
+use App\Services\StripePaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class CheckoutController extends Controller
 {
@@ -178,26 +181,30 @@ class CheckoutController extends Controller
      */
     public function process(Request $request)
     {
-        // Custom validation for mobile number to avoid regex delimiter issues
-        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+        $rules = [
             'address_id' => 'required|exists:customer_addresses,id',
-            'payment_method' => 'required|in:jazzcash,bank_transfer,cod',
-        ]);
+            'payment_method' => 'required|in:card,bank_transfer,cod',
+        ];
+        $messages = [];
 
-        // Add conditional validation for JazzCash number
-        if ($request->payment_method === 'jazzcash') {
-            $validator->addRules([
-                'jazzcash_number' => 'required',
-            ])->addMessages([
-                'jazzcash_number.required' => 'Please enter your JazzCash account number.',
-            ]);
-
-            // Validate mobile number format
-            $mobileNumber = $request->jazzcash_number;
-            if (!preg_match('/^(\+92|0|92)?3\d{9}$/', $mobileNumber)) {
-                $validator->errors()->add('jazzcash_number', 'Please enter a valid Pakistani mobile number (e.g., 03001234567 or +923001234567)');
-            }
+        if ($request->payment_method === 'bank_transfer') {
+            $rules += [
+                'bank_payer_name' => 'required|string|max:255',
+                'bank_payment_app' => 'required|string|max:255',
+                'bank_payment_source' => 'required|string|max:255',
+                'bank_customer_account_number' => 'required|string|max:100',
+                'payment_slip' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+            ];
+            $messages = [
+                'bank_payer_name.required' => 'Please enter the payer name.',
+                'bank_payment_app.required' => 'Please enter the payment app or platform.',
+                'bank_payment_source.required' => 'Please enter the payment source.',
+                'bank_customer_account_number.required' => 'Please enter the customer account number.',
+                'payment_slip.required' => 'Please upload the bank payment slip or receipt.',
+            ];
         }
+
+        $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
             return response()->json([
@@ -208,19 +215,6 @@ class CheckoutController extends Controller
         }
 
         $cart = $this->getCart();
-
-        // Validate cart
-        $cartController = new CartController();
-        $validationResult = $cartController->validateCart();
-        $validationData = json_decode($validationResult->getContent(), true);
-
-        if (!$validationData['valid']) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Some items in your cart are out of stock.',
-                'issues' => $validationData['issues'],
-            ], 400);
-        }
 
         // Verify address belongs to user
         $address = CustomerAddress::where('id', $request->address_id)
@@ -234,167 +228,78 @@ class CheckoutController extends Controller
             ], 400);
         }
 
-        // Use transaction to ensure data integrity
+        $paymentMethod = $request->payment_method;
+        $paymentStatus = 'pending';
+        $stripeClientSecret = null;
+        $stripeIsFake = false;
+
+        $paymentData = [
+            'bank_payer_name' => $request->bank_payer_name ?? null,
+            'bank_payment_app' => $request->bank_payment_app ?? null,
+            'bank_payment_source' => $request->bank_payment_source ?? null,
+            'bank_customer_account_number' => $request->bank_customer_account_number ?? null,
+        ];
+
         try {
-            DB::beginTransaction();
+            // Use OrderService to create order with full splitting logic
+            $orderService = app(OrderService::class);
 
-            $cartItems = $cart->items()->with(['product', 'variant'])->get();
-            $totalAmount = 0;
-            $totalCommission = 0;
+            // For card payments, create order first then handle Stripe
+            if ($paymentMethod === 'card') {
+                $order = $orderService->createOrderFromCart($cart, $address, 'card');
 
-            // Create main order
-            $order = Order::create([
-                'customer_id' => auth()->id(),
-                'order_number' => 'ORD-' . date('Ymd') . '-' . str_pad(Order::count() + 1, 6, '0', STR_PAD_LEFT),
-                'total_amount' => 0, // Will update after calculating
-                'commission_amount' => 0,
-                'vendor_count' => $cartItems->groupBy('product.vendor_id')->count(),
-                'status' => 'pending',
-                'payment_status' => 'pending',
-                'notes' => null,
-            ]);
-
-            // Create order address
-            OrderAddress::create([
-                'order_id' => $order->id,
-                'full_name' => $address->full_name,
-                'phone_number' => $address->phone,
-                'address_line_1' => $address->address_line_1,
-                'address_line_2' => $address->address_line_2,
-                'city' => $address->city,
-                'province' => $address->state_province,
-                'postal_code' => $address->postal_code,
-                'country' => $address->country,
-                'delivery_instructions' => $address->delivery_instructions,
-            ]);
-
-            // Group items by vendor and create order items
-            $vendorOrders = [];
-            $groupedByVendor = $cartItems->groupBy('product.vendor_id');
-
-            foreach ($groupedByVendor as $vendorId => $vendorItems) {
-                $vendorTotal = 0;
-                $vendorCommission = 0;
-
-                foreach ($vendorItems as $item) {
-                    $itemTotal = $item->price * $item->quantity;
-                    $vendorTotal += $itemTotal;
-
-                    // Calculate commission
-                    $category = $item->product->category;
-                    $commissionRate = $category->commission_rate ?? 0;
-                    $commissionAmount = ($itemTotal * $commissionRate / 100);
-                    $vendorCommission += $commissionAmount;
-                    $totalCommission += $commissionAmount;
-
-                    // Create order item
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $item->product_id,
-                        'variant_id' => $item->variant_id,
-                        'quantity' => $item->quantity,
-                        'price_at_purchase' => $item->price,
-                        'total_amount' => $itemTotal,
-                        'status' => 'pending',
-                        'return_requested' => false,
-                    ]);
-
-                    // Deduct from inventory
-                    $this->deductInventory($item->product, $item->variant, $item->quantity);
-
-                    // Log inventory change
-                    ProductInventoryLog::create([
-                        'product_id' => $item->product_id,
-                        'variant_id' => $item->variant_id,
-                        'quantity_change' => -$item->quantity,
-                        'reason' => 'order_placed',
-                        'reference_id' => $order->id,
-                        'reference_type' => 'order',
-                    ]);
-                }
-
-                // Create vendor order
-                VendorOrder::create([
-                    'order_id' => $order->id,
-                    'vendor_id' => $vendorId,
-                    'vendor_order_number' => 'VO-' . $order->id . '-' . $vendorId . '-' . time(),
-                    'subtotal' => $vendorTotal,
-                    'commission_amount' => $vendorCommission,
-                    'vendor_amount' => $vendorTotal - $vendorCommission,
-                    'status' => 'pending',
-                ]);
-
-                $totalAmount += $vendorTotal;
-            }
-
-            // Update order totals
-            $order->update([
-                'total_amount' => $totalAmount,
-                'commission_amount' => $totalCommission,
-            ]);
-
-            // Handle payment method
-            $paymentMethod = $request->payment_method;
-            $paymentStatus = 'pending';
-            $redirectUrl = null;
-
-            if ($paymentMethod === 'jazzcash') {
-                // Create payment for JazzCash
+                // Now handle Stripe payment intent
                 try {
-                    $jazzcashService = new JazzCashService();
-                    $payment = $jazzcashService->initiatePayment($order, $request->jazzcash_number);
+                    $stripePayment = app(StripePaymentService::class)->createPaymentIntent($order);
+                    $stripeIsFake = $stripePayment['is_fake'] ?? false;
+                    $stripeClientSecret = $stripePayment['client_secret'];
+                    $stripePaymentId = $stripePayment['payment']->id;
 
-                    $order->update(['payment_id' => $payment->id]);
-                    $redirectUrl = $payment->gateway_response['redirect_url'] ?? null;
-                    $paymentStatus = 'processing';
+                    if ($stripeIsFake) {
+                        app(StripePaymentService::class)->markCompleted(
+                            $stripePayment['payment'],
+                            (object) ['id' => $stripePayment['payment']->transaction_id, 'status' => 'succeeded'],
+                            'fake_auto_completed'
+                        );
+                        $paymentStatus = 'completed';
+                        $order->update(['payment_id' => $stripePaymentId, 'payment_status' => 'completed']);
+                    } else {
+                        $order->update(['payment_id' => $stripePaymentId, 'payment_status' => 'pending']);
+                    }
 
-                    Log::info('JazzCash payment initiated', [
+                    Log::info('Card payment processed', [
                         'order_id' => $order->id,
-                        'payment_id' => $payment->id,
-                        'reference' => $payment->transaction_id,
+                        'payment_id' => $stripePaymentId,
+                        'is_fake' => $stripeIsFake,
                     ]);
-                } catch (\Exception $e) {
-                    Log::error('JazzCash payment initiation failed', [
+                } catch (\Throwable $e) {
+                    Log::error('Stripe intent creation failed during checkout', [
                         'order_id' => $order->id,
                         'error' => $e->getMessage(),
                     ]);
-                    throw $e;
+                    $order->update(['payment_status' => 'failed']);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Card payment could not be started. ' . ($e->getMessage() ?: 'Please try again or use another payment method.'),
+                    ], 500);
                 }
-            } elseif ($paymentMethod === 'bank_transfer') {
-                // Create payment for Bank Transfer
-                try {
-                    $bankService = new BankTransferService();
-                    $payment = $bankService->initiatePayment($order);
-
-                    $order->update(['payment_id' => $payment->id]);
-                    $paymentStatus = 'pending';
-
-                    Log::info('Bank transfer initiated', [
-                        'order_id' => $order->id,
-                        'payment_id' => $payment->id,
-                        'reference' => $payment->transaction_id,
-                    ]);
-                } catch (\Exception $e) {
-                    Log::error('Bank transfer initiation failed', [
-                        'order_id' => $order->id,
-                        'error' => $e->getMessage(),
-                    ]);
-                    throw $e;
+            } else {
+                // For bank_transfer or cod, let OrderService handle payment creation
+                if ($paymentMethod === 'bank_transfer' && $request->hasFile('payment_slip')) {
+                    $slipPath = $request->file('payment_slip')->store('payment-slips', 'public');
+                    $paymentData['payment_slip_path'] = $slipPath;
                 }
-            } elseif ($paymentMethod === 'cod') {
-                // Cash on Delivery - no payment processing
-                $paymentStatus = 'completed';
-                $order->update(['payment_status' => 'completed']);
 
-                Log::info('Cash on delivery order created', [
+                $order = $orderService->createOrderFromCart($cart, $address, $paymentMethod, $paymentData);
+
+                if ($paymentMethod === 'cod') {
+                    $paymentStatus = 'completed';
+                }
+
+                Log::info('Order created with payment method: ' . $paymentMethod, [
                     'order_id' => $order->id,
                 ]);
             }
-
-            // Clear cart
-            $cart->clearCart();
-
-            DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -403,11 +308,23 @@ class CheckoutController extends Controller
                 'order_number' => $order->order_number,
                 'payment_method' => $paymentMethod,
                 'payment_status' => $paymentStatus,
-                'redirect' => $redirectUrl ?? route('order.confirmation', $order->id),
+                'stripe_client_secret' => $stripeClientSecret,
+                'stripe_publishable_key' => config('stripe.publishable_key'),
+                'stripe_is_fake' => $stripeIsFake,
+                'redirect' => route('order.confirmation', $order->id),
             ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
+        } catch (\RuntimeException $e) {
+            // Stock validation errors
+            Log::warning('Checkout rejected due to stock issue', [
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
 
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        } catch (\Exception $e) {
             Log::error('Checkout process failed', [
                 'user_id' => auth()->id(),
                 'error' => $e->getMessage(),
@@ -419,30 +336,6 @@ class CheckoutController extends Controller
                 'message' => 'An error occurred while processing your order. Please try again.',
                 'error' => config('app.debug') ? $e->getMessage() : null,
             ], 500);
-        }
-    }
-
-    /**
-     * Deduct inventory for product/variant
-     */
-    protected function deductInventory($product, $variant, $quantity)
-    {
-        if ($variant) {
-            $variant->decrement('stock', $quantity);
-        } else {
-            // For products with variants, decrease variant stocks
-            // For products without variants, decrease from inventory
-            if ($product->variants()->count() > 0) {
-                // If product has variants, find the one with stock
-                $variant = $product->variants()
-                    ->where('stock', '>', 0)
-                    ->orderBy('stock', 'desc')
-                    ->first();
-
-                if ($variant) {
-                    $variant->decrement('stock', $quantity);
-                }
-            }
         }
     }
 }

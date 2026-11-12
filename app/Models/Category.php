@@ -21,6 +21,7 @@ class Category extends Model
         'is_active',
         'commission_rate',
         'created_by',
+        'vendor_id',
     ];
 
     protected $casts = [
@@ -64,11 +65,21 @@ class Category extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function vendor(): BelongsTo
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+
     // ===== SCOPES =====
 
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeForVendor($query, int $vendorId)
+    {
+        return $query->where('vendor_id', $vendorId);
     }
 
     public function scopeMain($query)

@@ -36,7 +36,7 @@ class BankTransferService
                 'amount' => $order->total_amount,
                 'currency' => $this->config['currency'],
                 'payment_method' => 'bank_transfer',
-                'payment_gateway' => 'jazzcash', // Using as default gateway for bank transfers
+                'payment_gateway' => 'bank_transfer',
                 'transaction_id' => $referenceNumber,
                 'status' => 'pending',
                 'escrow_status' => 'held',
@@ -147,6 +147,7 @@ class BankTransferService
     public function adminVerifyTransfer($payment, $adminNotes = null)
     {
         try {
+            $wasCompleted = $payment->status === 'completed';
             $payment->update([
                 'status' => 'completed',
                 'paid_at' => now(),
@@ -163,6 +164,10 @@ class BankTransferService
             $payment->order->update([
                 'payment_status' => 'completed',
             ]);
+
+            if (!$wasCompleted) {
+                app(PaymentNotificationService::class)->sendPaymentReceived($payment->order);
+            }
 
             // Send confirmation email
             $this->sendPaymentConfirmationEmail($payment->order);

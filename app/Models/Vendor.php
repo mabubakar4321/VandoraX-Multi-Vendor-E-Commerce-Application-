@@ -103,6 +103,16 @@ class Vendor extends Model
         return $this->hasMany(VendorBadReview::class);
     }
 
+    public function unblockRequests(): HasMany
+    {
+        return $this->hasMany(VendorUnblockRequest::class);
+    }
+
+    public function pendingUnblockRequest(): HasOne
+    {
+        return $this->hasOne(VendorUnblockRequest::class)->where('status', 'pending');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Scopes

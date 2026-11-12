@@ -19,10 +19,25 @@ class Payment extends Model
         'gateway_response',
         'status',
         'escrow_status',
+        'jazzcash_account_number',
+        'jazzcash_account_holder',
+        'bank_account_holder',
+        'bank_account_number',
+        'bank_iban',
+        'bank_name',
+        'bank_payer_name',
+        'bank_payment_app',
+        'bank_payment_source',
+        'bank_customer_account_number',
+        'payment_slip_path',
+        'payment_slip_original_name',
+        'payment_slip_mime_type',
+        'payment_slip_size',
         'paid_at',
         'released_at',
         'refunded_at',
         'refund_reason',
+        'refunded_amount',
     ];
 
     protected $casts = [
@@ -31,12 +46,23 @@ class Payment extends Model
         'paid_at' => 'datetime',
         'released_at' => 'datetime',
         'refunded_at' => 'datetime',
+        'refunded_amount' => 'decimal:2',
     ];
 
     // Relationships
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function escrowAccount()
+    {
+        return $this->hasOne(\App\Models\EscrowAccount::class);
+    }
+
+    public function refunds()
+    {
+        return $this->hasMany(PaymentRefund::class);
     }
 
     // Scopes

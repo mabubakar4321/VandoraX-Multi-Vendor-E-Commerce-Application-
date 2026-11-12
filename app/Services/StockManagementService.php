@@ -149,7 +149,7 @@ class StockManagementService
      */
     public function getVendorStockStats($vendorId)
     {
-        $products = Product::where('vendor_id', $vendorId)->get();
+        $products = Product::where('vendor_id', $vendorId)->with('inventory')->get();
 
         $stats = [
             'total_products' => $products->count(),
@@ -161,14 +161,18 @@ class StockManagementService
         ];
 
         foreach ($products as $product) {
-            $inventory = $this->getInventory($product);
+            $inventory = $product->inventory;
+            $quantity = (int) $inventory->sum('quantity');
+            $reserved = (int) $inventory->sum('reserved_quantity');
+            $available = $quantity - $reserved;
+            $threshold = (int) $inventory->sum('low_stock_threshold');
 
-            $stats['total_items'] += $inventory->quantity;
-            $stats['reserved_items'] += $inventory->reserved_quantity;
+            $stats['total_items'] += $quantity;
+            $stats['reserved_items'] += $reserved;
 
-            if ($inventory->quantity <= 0) {
+            if ($available <= 0) {
                 $stats['out_of_stock']++;
-            } elseif ($inventory->isLowStock()) {
+            } elseif ($available <= $threshold) {
                 $stats['low_stock']++;
             } else {
                 $stats['in_stock']++;
@@ -183,11 +187,14 @@ class StockManagementService
      */
     public function getLowStockProducts($vendorId)
     {
-        $products = Product::where('vendor_id', $vendorId)->get();
+        $products = Product::where('vendor_id', $vendorId)->with('inventory')->get();
 
         return $products->filter(function ($product) {
-            $inventory = $this->getInventory($product);
-            return $inventory->isLowStock();
+            $quantity = (int) $product->inventory->sum('quantity');
+            $reserved = (int) $product->inventory->sum('reserved_quantity');
+            $threshold = (int) $product->inventory->sum('low_stock_threshold');
+
+            return $quantity - $reserved > 0 && $quantity - $reserved <= $threshold;
         });
     }
 
@@ -196,11 +203,13 @@ class StockManagementService
      */
     public function getOutOfStockProducts($vendorId)
     {
-        $products = Product::where('vendor_id', $vendorId)->get();
+        $products = Product::where('vendor_id', $vendorId)->with('inventory')->get();
 
         return $products->filter(function ($product) {
-            $inventory = $this->getInventory($product);
-            return $this->isOutOfStock($product);
+            $quantity = (int) $product->inventory->sum('quantity');
+            $reserved = (int) $product->inventory->sum('reserved_quantity');
+
+            return $quantity - $reserved <= 0;
         });
     }
 

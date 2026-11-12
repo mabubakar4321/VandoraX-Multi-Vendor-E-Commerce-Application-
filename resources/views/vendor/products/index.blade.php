@@ -72,8 +72,8 @@
 </div>
 
 <!-- Products Table -->
-<div class="bg-white rounded-lg shadow overflow-hidden">
-        <table class="w-full">
+<div class="overflow-x-auto rounded-lg bg-white shadow">
+        <table class="w-full min-w-[760px]">
             <thead class="bg-gray-50 border-b">
                 <tr>
                     <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Product</th>

@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 
 class CollectionController extends Controller
 {
+
+
+
     public function newArrivals()
     {
         $products = Product::where('status', 'published')
@@ -22,6 +25,9 @@ class CollectionController extends Controller
 
         return view('storefront.collection', compact('products', 'title', 'description'));
     }
+
+
+
 
     public function bestsellers()
     {

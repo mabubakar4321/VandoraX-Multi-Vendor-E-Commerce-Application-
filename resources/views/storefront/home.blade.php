@@ -492,6 +492,74 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        .category-card-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .category-card-luxury:hover .category-card-img {
+            transform: scale(1.08);
+        }
+        .category-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%);
+            transition: background 0.4s;
+        }
+        .category-card-luxury:hover .category-card-overlay {
+            background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.35) 100%);
+        }
+        /* lightbox */
+        #catLightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            background: rgba(10,10,20,0.88);
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            backdrop-filter: blur(6px);
+        }
+        #catLightbox.open { display: flex; }
+        #catLightbox img {
+            max-width: min(92vw, 900px);
+            max-height: 86vh;
+            border-radius: 16px;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+            background: white;
+        }
+        #catLightboxClose {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.14);
+            color: white;
+            font-size: 28px;
+            line-height: 44px;
+            cursor: pointer;
+        }
+        #catLightboxCaption {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.92);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            background: rgba(0,0,0,0.35);
+            padding: 8px 14px;
+            border-radius: 20px;
+        }
+
         .category-card-luxury::before {
             content: '';
             position: absolute;
@@ -558,6 +626,22 @@
             font-size: 28px;
             font-weight: 800;
             letter-spacing: 1px;
+        }
+        .category-vendor {
+            position: relative;
+            z-index: 2;
+            margin-top: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            opacity: 0.92;
+            background: rgba(255,255,255,0.18);
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            backdrop-filter: blur(4px);
         }
 
         /* ===== PRODUCTS SECTION ===== */
@@ -1178,26 +1262,54 @@
             <p class="section-subtitle">Explore our curated selection of premium product categories</p>
         </div>
         <div class="categories-grid">
-            @foreach($categories->take(8) as $category)
-                <div class="category-card-luxury" style="cursor: pointer;" onclick="document.location='#products'">
-                    <div class="category-name">
-                        @switch($category->name)
-                            @case('Electronics') 📱 @break
-                            @case('Fashion') 👔 @break
-                            @case('Home & Garden') 🏠 @break
-                            @case('Sports') ⚽ @break
-                            @case('Books') 📚 @break
-                            @case('Jewelry') 💎 @break
-                            @case('Beauty') 💄 @break
-                            @case('Furniture') 🛋️ @break
-                            @default 🎁
-                        @endswitch
-                        {{ $category->name }}
+            @foreach($categories as $category)
+                <div class="category-card-luxury" role="button" tabindex="0" aria-label="View {{ $category->name }}" data-img="{{ $category->icon ? asset('storage/' . $category->icon) : '' }}" data-name="{{ $category->name }}" onclick="openCatLightbox(this.dataset.img, this.dataset.name)">
+                    @if($category->icon)
+                        <img src="{{ asset('storage/' . $category->icon) }}" alt="{{ $category->name }}" class="category-card-img" loading="lazy" onerror="this.style.display='none'">
+                        <div class="category-card-overlay"></div>
+                    @endif
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;z-index:2;">
+                        <div class="category-name">{{ $category->name }}</div>
+                        @if($category->vendor)
+                            <div class="category-vendor">{{ $category->vendor->store_name }}</div>
+                        @endif
                     </div>
                 </div>
             @endforeach
         </div>
     </section>
+    <!-- Category Lightbox -->
+    <div id="catLightbox" role="dialog" aria-modal="true" aria-label="Category image preview" onclick="if(event.target===this) closeCatLightbox()">
+        <button id="catLightboxClose" type="button" aria-label="Close" onclick="closeCatLightbox()">×</button>
+        <img id="catLightboxImg" src="" alt="">
+        <div id="catLightboxCaption"></div>
+    </div>
+    <script>
+        function openCatLightbox(src, name){
+            if(!src) return;
+            const lb=document.getElementById('catLightbox');
+            const img=document.getElementById('catLightboxImg');
+            const cap=document.getElementById('catLightboxCaption');
+            img.src=src; img.alt=name||'Category image';
+            cap.textContent=name||'';
+            lb.classList.add('open');
+            document.body.style.overflow='hidden';
+        }
+        function closeCatLightbox(){
+            const lb=document.getElementById('catLightbox');
+            lb.classList.remove('open');
+            document.body.style.overflow='';
+        }
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeCatLightbox(); });
+        // keyboard activation for category cards
+        document.addEventListener('DOMContentLoaded', function(){
+            document.querySelectorAll('.category-card-luxury').forEach(function(card){
+                card.addEventListener('keydown', function(e){
+                    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); card.click(); }
+                });
+            });
+        });
+    </script>
 
     <!-- Products Section -->
     <section class="section-products" id="products">
@@ -1276,6 +1388,9 @@
                 @if(auth()->check())
                 <button class="btn-luxury-secondary" style="border-color: #FFD700; color: #1a1a2e;" onclick="showMyOrders()">
                     📋 View My Orders
+                </button>
+                <button class="btn-luxury-secondary" style="border-color: #FFD700; color: #1a1a2e;" onclick="window.location='{{ route('vendor.register') }}'">
+                    🏪 Become a Seller
                 </button>
                 @endif
             </div>

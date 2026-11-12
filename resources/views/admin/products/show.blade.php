@@ -6,13 +6,13 @@
 <div class="container mx-auto max-w-6xl px-4 py-8">
     <a href="{{ route('admin.products.index') }}" class="mb-6 inline-flex items-center text-indigo-600 hover:text-indigo-900">&larr; Back to all products</a>
 
-    <div class="space-y-8 rounded-lg bg-white p-8 shadow">
+    <div class="space-y-8 rounded-lg bg-white p-4 shadow sm:p-6 lg:p-8">
         <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-200 pb-6">
-            <div>
+            <div class="min-w-0">
                 <p class="text-sm text-gray-500">Admin product review</p>
-                <h1 class="mt-1 text-3xl font-bold text-gray-900">{{ $product->name }}</h1>
+                <h1 class="mt-1 break-words text-3xl font-bold text-gray-900">{{ $product->name }}</h1>
                 <p class="mt-2 text-gray-600">SKU: {{ $product->sku ?: 'Not assigned' }}</p>
-                <p class="mt-2 text-sm text-gray-600">Vendor: {{ $product->vendor?->store_name ?? 'Unknown' }} ({{ $product->vendor?->user?->email ?? 'No email' }})</p>
+                <p class="mt-2 break-words text-sm text-gray-600">Vendor: {{ $product->vendor?->store_name ?? 'Unknown' }} ({{ $product->vendor?->user?->email ?? 'No email' }})</p>
             </div>
             <span class="rounded-full px-4 py-2 text-sm font-semibold {{ $product->moderation_status === 'approved' ? 'bg-green-100 text-green-800' : ($product->moderation_status === 'rejected' ? 'bg-red-100 text-red-800' : ($product->moderation_status === 'flagged' ? 'bg-orange-100 text-orange-800' : 'bg-yellow-100 text-yellow-800')) }}">
                 {{ ucfirst($product->moderation_status) }}
@@ -31,7 +31,7 @@
 
         <section class="border-t border-gray-200 pt-6">
             <h2 class="text-xl font-bold text-gray-900">Product information</h2>
-            <div class="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="mt-5 grid min-w-0 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 <div><p class="text-sm text-gray-500">Category</p><p class="mt-1 font-medium">{{ $product->category?->name ?? 'Not selected' }}</p></div>
                 <div><p class="text-sm text-gray-500">Subcategory</p><p class="mt-1 font-medium">{{ $product->subcategory?->name ?? 'Not selected' }}</p></div>
                 <div><p class="text-sm text-gray-500">Price</p><p class="mt-1 font-medium">Rs {{ number_format($product->base_price, 2) }}</p></div>
@@ -88,7 +88,7 @@
         <div class="flex items-start justify-between gap-4"><h2 id="moderation-modal-title" class="text-xl font-bold text-gray-900"></h2><button type="button" onclick="closeModerationModal()" class="text-2xl leading-none text-gray-500" aria-label="Close">&times;</button></div>
         <label for="moderation-reason" id="moderation-modal-label" class="mt-5 block text-sm font-medium text-gray-700"></label>
         <textarea id="moderation-reason" rows="4" maxlength="1000" class="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3" required></textarea>
-        <div class="mt-5 flex justify-end gap-3"><button type="button" onclick="closeModerationModal()" class="rounded-lg bg-gray-100 px-5 py-2 font-medium text-gray-700">Cancel</button><button type="button" onclick="submitModerationForm()" class="rounded-lg bg-indigo-600 px-5 py-2 font-medium text-white">Submit</button></div>
+        <div class="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" onclick="closeModerationModal()" class="rounded-lg bg-gray-100 px-5 py-2 font-medium text-gray-700">Cancel</button><button type="button" onclick="submitModerationForm()" class="rounded-lg bg-indigo-600 px-5 py-2 font-medium text-white">Submit</button></div>
     </div>
 </div>
 <script>

@@ -4,14 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VendorPayout extends Model
 {
-   use HasFactory;
+   use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'vendor_id',
+        'vendor_order_id',
+        'payment_id',
         'amount',
+        'gross_amount',
+        'commission_amount',
         'status',
         'payout_method',
         'transaction_id',
@@ -22,6 +27,8 @@ class VendorPayout extends Model
 
     protected $casts = [
         'amount' => 'decimal:2',
+        'gross_amount' => 'decimal:2',
+        'commission_amount' => 'decimal:2',
         'requested_at' => 'datetime',
         'processed_at' => 'datetime',
     ];
@@ -30,6 +37,16 @@ class VendorPayout extends Model
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    public function vendorOrder()
+    {
+        return $this->belongsTo(VendorOrder::class);
+    }
+
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class);
     }
 
     // Scopes

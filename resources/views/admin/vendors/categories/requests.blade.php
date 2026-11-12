@@ -6,12 +6,12 @@
 <div class="container mx-auto px-4 py-8">
     <!-- Header -->
     <div class="mb-8">
-        <div class="flex justify-between items-center">
-            <div>
+        <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <div class="min-w-0">
                 <h1 class="text-3xl font-bold text-gray-900">Category Requests</h1>
                 <p class="text-gray-600 mt-1">Manage your category requests and approvals</p>
             </div>
-            <a href="{{ route('vendor.categories.request.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg">
+            <a href="{{ route('vendor.categories.request.create') }}" class="w-full rounded-lg bg-indigo-600 px-6 py-2 text-center text-white hover:bg-indigo-700 sm:w-auto">
                 Request New Category
             </a>
         </div>
@@ -63,7 +63,8 @@
     </div>
 
     <!-- Requests Table -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+        <div class="overflow-x-auto">
         <table class="w-full">
             <thead class="bg-gray-50 border-b">
                 <tr>
@@ -117,6 +118,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 @endsection

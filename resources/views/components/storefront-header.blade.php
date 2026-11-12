@@ -1,322 +1,72 @@
-<header>
-    <div class="header-wrapper">
-        <a href="{{ route('home') }}" class="logo">VandoraX</a>
-
-        <form action="{{ route('storefront.products.index') }}" method="GET" class="search-bar">
-            <input type="text" name="search" placeholder="Search premium products..." value="{{ request('search', '') }}">
-            <button type="submit">Search</button>
-        </form>
-
-        <div class="header-right">
-            @if(auth()->check())
-                <a href="{{ route('wishlist.index') }}" class="header-icon" title="Wishlist">
-                    ♡
-                    <span class="badge" id="wishlist-count" style="display: none;">0</span>
-                </a>
-            @else
-                <a href="{{ route('customer.login') }}" class="header-icon" title="Login to use wishlist" style="opacity: 0.5;">
-                    ♡
-                </a>
-            @endif
-
-            <a href="{{ route('cart.index') }}" class="header-icon" title="Shopping Cart">
-                🛒
-                <span class="badge" id="cart-count" style="display: none;">0</span>
+<header class="sticky top-0 z-50 border-b border-forest-700 bg-forest shadow-sm">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-wrap items-center gap-3 py-3 sm:gap-5">
+            <a href="{{ route('home') }}" class="shrink-0 text-xl font-display font-bold text-white sm:text-2xl">
+                Vandora<span class="text-marigold">X</span>
             </a>
 
-            @if(auth()->check())
-                <div class="header-user">
-                    <div class="user-info">
-                        <div class="user-name">{{ auth()->user()->name }}</div>
-                        <div class="user-role">Customer</div>
-                    </div>
-                    <a href="{{ route('order.index') }}" class="dashboard-btn">My Dashboard</a>
-                    <form method="POST" action="{{ route('customer.logout') }}" style="margin: 0;">
+            <form action="{{ route('storefront.products.index') }}" method="GET" class="order-3 flex w-full min-w-0 sm:order-none sm:ml-auto sm:max-w-md sm:flex-1">
+                <label for="storefront-search" class="sr-only">Search products</label>
+                <input id="storefront-search" type="search" name="search" value="{{ request('search', '') }}"
+                       placeholder="Search products..."
+                       class="min-w-0 flex-1 rounded-l-md border border-white/20 bg-white px-3 py-2 text-sm text-forest outline-none placeholder:text-graphite/50 focus:border-marigold focus:ring-2 focus:ring-marigold/30">
+                <button type="submit" class="rounded-r-md bg-marigold px-3 py-2 text-sm font-semibold text-forest transition-colors hover:bg-marigold-600 sm:px-5">
+                    Search
+                </button>
+            </form>
+
+            <nav class="ml-auto flex items-center gap-2 sm:gap-3" aria-label="Shopping">
+                @if(auth()->check())
+                    <a href="{{ route('wishlist.index') }}" class="relative rounded-md p-2 text-forest-100 transition-colors hover:bg-forest-700 hover:text-marigold" aria-label="Wishlist">
+                        <span aria-hidden="true" class="text-xl">♡</span>
+                        <span id="wishlist-count" class="absolute -right-1 -top-1 hidden min-w-5 rounded-full bg-marigold px-1.5 py-0.5 text-center text-[10px] font-bold text-forest">0</span>
+                    </a>
+                @endif
+                <a href="{{ route('cart.index') }}" class="relative rounded-md p-2 text-forest-100 transition-colors hover:bg-forest-700 hover:text-marigold" aria-label="Shopping cart">
+                    <span aria-hidden="true" class="text-lg">🛒</span>
+                    <span id="cart-count" class="absolute -right-1 -top-1 hidden min-w-5 rounded-full bg-marigold px-1.5 py-0.5 text-center text-[10px] font-bold text-forest">0</span>
+                </a>
+                @if(auth()->check())
+                    <a href="{{ route('order.index') }}" class="hidden rounded-md px-2 py-2 text-sm font-medium text-forest-100 transition-colors hover:bg-forest-700 hover:text-marigold md:inline">
+                        My orders
+                    </a>
+                    <form method="POST" action="{{ route('customer.logout') }}">
                         @csrf
-                        <button type="submit" class="logout-btn">Logout</button>
+                        <button type="submit" class="rounded-md px-2 py-2 text-sm font-medium text-forest-100 transition-colors hover:bg-forest-700 hover:text-marigold">
+                            Log out
+                        </button>
                     </form>
-                </div>
-            @else
-                <div class="auth-buttons">
-                    <a href="{{ route('customer.login') }}" class="btn-login">Login</a>
-                    <a href="{{ route('customer.register') }}" class="btn-register">Register</a>
-                </div>
-            @endif
+                @else
+                    <a href="{{ route('customer.login') }}" class="hidden rounded-md px-2 py-2 text-sm font-medium text-forest-100 transition-colors hover:bg-forest-700 hover:text-marigold sm:inline">Log in</a>
+                    <a href="{{ route('customer.register') }}" class="rounded-md bg-marigold px-3 py-2 text-sm font-semibold text-forest transition-colors hover:bg-marigold-600">Join</a>
+                @endif
+            </nav>
         </div>
     </div>
 </header>
 
-<style>
-    /* ===== HEADER ===== */
-    header {
-        background: linear-gradient(180deg, var(--primary) 0%, rgba(22, 33, 62, 0.95) 100%);
-        border-bottom: 1px solid var(--border-light);
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-        box-shadow: 0 8px 32px rgba(255, 165, 0, 0.1);
-        backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
-    }
+@once
+    @push('scripts')
+        <script>
+            function updateCount(route, selector) {
+                fetch(route)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelectorAll(selector).forEach(element => {
+                            const count = Number(data.count || 0);
+                            element.textContent = count;
+                            element.classList.toggle('hidden', count === 0);
+                        });
+                    })
+                    .catch(error => console.error('Unable to update shopping count:', error));
+            }
 
-    .header-wrapper {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 12px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-        flex-wrap: wrap;
-    }
-
-    .logo {
-        font-family: 'Playfair Display', serif;
-        font-size: 28px;
-        font-weight: 800;
-        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-decoration: none;
-        flex-shrink: 0;
-        letter-spacing: -1px;
-    }
-
-    .search-bar {
-        flex: 1;
-        max-width: 450px;
-        display: flex;
-        gap: 0;
-        min-width: 200px;
-    }
-
-    .search-bar input {
-        flex: 1;
-        padding: 12px 18px;
-        border: 1px solid var(--border-light);
-        border-radius: 8px 0 0 8px;
-        font-size: 14px;
-        font-family: 'Poppins', sans-serif;
-        background: rgba(255, 255, 255, 0.05);
-        color: var(--text-primary);
-        outline: none;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(10px);
-    }
-
-    .search-bar input::placeholder {
-        color: var(--text-muted);
-    }
-
-    .search-bar input:focus {
-        border-color: var(--accent);
-        background: rgba(255, 255, 255, 0.08);
-        box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
-    }
-
-    .search-bar button {
-        padding: 12px 28px;
-        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
-        border: none;
-        border-radius: 0 8px 8px 0;
-        color: var(--primary);
-        font-weight: 700;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
-    }
-
-    .search-bar button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
-    }
-
-    .header-right {
-        display: flex;
-        align-items: center;
-        gap: 28px;
-        flex-shrink: 0;
-    }
-
-    .header-icon {
-        position: relative;
-        width: 44px;
-        height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--text-secondary);
-        font-size: 22px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border-radius: 10px;
-        text-decoration: none;
-    }
-
-    .header-icon:hover {
-        background: rgba(255, 165, 0, 0.1);
-        color: var(--accent);
-        transform: scale(1.15);
-    }
-
-    .badge {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
-        color: var(--primary);
-        font-size: 11px;
-        font-weight: 700;
-        padding: 4px 8px;
-        border-radius: 12px;
-        min-width: 22px;
-        text-align: center;
-        box-shadow: 0 2px 8px rgba(255, 165, 0, 0.4);
-    }
-
-    .header-user {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding-left: 28px;
-        border-left: 1px solid var(--border-light);
-    }
-
-    .user-info {
-        text-align: right;
-    }
-
-    .user-name {
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .user-role {
-        font-size: 11px;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .dashboard-btn {
-        padding: 8px 14px;
-        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
-        color: var(--primary);
-        font-weight: 700;
-        font-size: 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-        border: none;
-    }
-
-    .dashboard-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255, 165, 0, 0.4);
-    }
-
-    .logout-btn {
-        padding: 8px 14px;
-        background: rgba(255, 165, 0, 0.15);
-        border: none;
-        color: var(--accent);
-        font-weight: 700;
-        font-size: 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .logout-btn:hover {
-        background: rgba(255, 165, 0, 0.25);
-    }
-
-    .auth-buttons {
-        display: flex;
-        gap: 12px;
-        padding-left: 28px;
-        border-left: 1px solid var(--border-light);
-    }
-
-    .btn-login, .btn-register {
-        padding: 8px 16px;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 600;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-    }
-
-    .btn-login {
-        color: var(--text-primary);
-        background: transparent;
-        border: 1px solid var(--border-medium);
-    }
-
-    .btn-login:hover {
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .btn-register {
-        color: var(--primary);
-        background: var(--accent);
-        border: 1px solid var(--accent);
-    }
-
-    .btn-register:hover {
-        background: var(--accent-light);
-    }
-
-</style>
-<script>
-    function updateCartCount() {
-        fetch('{{ route('cart.count') }}')
-            .then(r => r.json())
-            .then(data => {
-                const els = document.querySelectorAll('#cart-count');
-                els.forEach(el => {
-                    const count = data.count || 0;
-                    if (count > 0) {
-                        el.textContent = count;
-                        el.style.display = 'flex';
-                    } else {
-                        el.style.display = 'none';
-                    }
-                });
-            })
-            .catch(e => console.error('Cart error:', e));
-    }
-
-    function updateWishlistCount() {
-        @if(auth()->check())
-        fetch('{{ route('wishlist.count') }}')
-            .then(r => r.json())
-            .then(data => {
-                const els = document.querySelectorAll('#wishlist-count');
-                els.forEach(el => {
-                    const count = data.count || 0;
-                    if (count > 0) {
-                        el.textContent = count;
-                        el.style.display = 'flex';
-                    } else {
-                        el.style.display = 'none';
-                    }
-                });
-            })
-            .catch(e => console.error('Wishlist error:', e));
-        @endif
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        updateCartCount();
-        updateWishlistCount();
-    });
-
-    document.addEventListener('cartUpdated', updateCartCount);
-    document.addEventListener('wishlistUpdated', updateWishlistCount);
-</script>
+            document.addEventListener('DOMContentLoaded', function () {
+                updateCount('{{ route('cart.count') }}', '#cart-count');
+                @if(auth()->check())
+                    updateCount('{{ route('wishlist.count') }}', '#wishlist-count');
+                @endif
+            });
+        </script>
+    @endpush
+@endonce

@@ -12,6 +12,7 @@ class Dispute extends Model
     protected $fillable = [
         'dispute_number',
         'order_id',
+        'return_id',
         'customer_id',
         'vendor_id',
         'dispute_type',
@@ -49,6 +50,11 @@ class Dispute extends Model
     public function decidedBy()
     {
         return $this->belongsTo(User::class, 'admin_decided_by');
+    }
+
+    public function returnRequest()
+    {
+        return $this->belongsTo(ProductReturn::class, 'return_id');
     }
 
     // Scopes

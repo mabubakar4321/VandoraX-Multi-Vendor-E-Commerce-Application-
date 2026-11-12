@@ -3,15 +3,15 @@
 @section('title', 'Pending Vendors')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
+<div class="mx-auto w-full max-w-7xl space-y-6">
     <!-- Header -->
     <div class="mb-8">
-        <h1 class="text-4xl font-bold text-gray-900">Pending Vendor Applications</h1>
+        <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">Pending Vendor Applications</h1>
         <p class="text-gray-600 mt-2">Review and approve vendor registrations</p>
     </div>
 
     <!-- Statistics -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
             <p class="text-gray-600 text-sm font-medium">Pending Applications</p>
             <p class="text-3xl font-bold text-yellow-600 mt-2">{{ $vendors->total() }}</p>
@@ -31,9 +31,10 @@
     </div>
 
     <!-- Vendors Table -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-hidden rounded-lg bg-white shadow">
         @if($vendors->count() > 0)
-            <table class="w-full">
+            <div class="overflow-x-auto">
+            <table class="w-full min-w-[760px]">
                 <thead class="bg-gray-50 border-b">
                     <tr>
                         <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Vendor Name</th>
@@ -59,7 +60,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-600">{{ $vendor->user->email }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600"><span class="break-all">{{ $vendor->user->email }}</span></td>
                             <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $vendor->store_name ?? 'N/A' }}</td>
                             <td class="px-6 py-4">
                                 @if($vendor->status === 'pending_documents')
@@ -94,9 +95,10 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
 
             <!-- Pagination -->
-            <div class="bg-gray-50 px-6 py-4 border-t">
+            <div class="border-t bg-gray-50 px-4 py-4 sm:px-6">
                 {{ $vendors->links() }}
             </div>
         @else

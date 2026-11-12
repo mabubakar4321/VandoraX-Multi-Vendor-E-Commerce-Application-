@@ -29,16 +29,17 @@ class CategoryRequestController extends Controller
     {
         $vendor = Auth::user()->vendor;
 
-        // Get all approved categories (from admin)
-        $approvedCategories = \App\Models\Category::active()
+        $vendorCategories = \App\Models\Category::forVendor($vendor->id)
+            ->active()
             ->with('parent')
+            ->withCount('products')
             ->ordered()
             ->get();
 
         // Get vendor's category requests
         $vendorRequests = $this->requestRepository->getVendorRequests($vendor->id);
 
-        return view('vendor.categories.all', compact('approvedCategories', 'vendorRequests'));
+        return view('vendor.categories.all', compact('vendorCategories', 'vendorRequests'));
     }
 
     public function index()

@@ -1,103 +1,33 @@
-<footer>
-    <div class="footer-content">
-        <div class="footer-section">
-            <h3>For Customers</h3>
-            <ul>
-                <li><a href="{{ route('storefront.products.index') }}">Browse Products</a></li>
-                <li><a href="{{ route('customer.register') }}">Create Account</a></li>
-                <li><a href="#">Shipping Info</a></li>
-                <li><a href="#">Return Policy</a></li>
-                <li><a href="#">Track Orders</a></li>
-            </ul>
+<footer class="border-t border-mist bg-white">
+    <div class="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
+        <div class="sm:col-span-2 lg:col-span-1">
+            <a href="{{ route('home') }}" class="text-xl font-display font-bold text-forest">Vandora<span class="text-marigold">X</span></a>
+            <p class="mt-3 max-w-xs text-sm leading-6 text-graphite/75">A trusted marketplace for discovering products from verified local sellers.</p>
         </div>
-        <div class="footer-section">
-            <h3>For Sellers</h3>
-            <ul>
-                <li><a href="{{ route('vendor.register') }}">Start Selling</a></li>
-                <li><a href="{{ route('vendor.login') }}">Seller Login</a></li>
-                <li><a href="#">Seller Guide</a></li>
-                <li><a href="#">Commission Info</a></li>
-                <li><a href="#">Support</a></li>
-            </ul>
+        <div>
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-forest">Shop</h2>
+            <div class="mt-3 space-y-2 text-sm">
+                <a href="{{ route('storefront.products.index') }}" class="block text-graphite transition-colors hover:text-forest">Browse products</a>
+                <a href="{{ route('collections.new-arrivals') }}" class="block text-graphite transition-colors hover:text-forest">New arrivals</a>
+                <a href="{{ route('collections.bestsellers') }}" class="block text-graphite transition-colors hover:text-forest">Bestsellers</a>
+            </div>
         </div>
-        <div class="footer-section">
-            <h3>Company</h3>
-            <ul>
-                <li><a href="#">About VandoraX</a></li>
-                <li><a href="#">Contact Us</a></li>
-                <li><a href="#">Blog</a></li>
-                <li><a href="#">Privacy Policy</a></li>
-                <li><a href="#">Terms of Service</a></li>
-            </ul>
+        <div>
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-forest">Account</h2>
+            <div class="mt-3 space-y-2 text-sm">
+                <a href="{{ route('customer.login') }}" class="block text-graphite transition-colors hover:text-forest">Log in</a>
+                <a href="{{ route('customer.register') }}" class="block text-graphite transition-colors hover:text-forest">Create account</a>
+                @if(!auth()->check() || !auth()->user()->hasRole('customer'))
+                    <a href="{{ route('vendor.register') }}" class="block text-graphite transition-colors hover:text-forest">Start selling</a>
+                @endif
+            </div>
         </div>
-        <div class="footer-section">
-            <h3>Connect</h3>
-            <ul>
-                <li><a href="#">Facebook</a></li>
-                <li><a href="#">Instagram</a></li>
-                <li><a href="#">Twitter</a></li>
-                <li><a href="#">LinkedIn</a></li>
-                <li><a href="#">YouTube</a></li>
-            </ul>
+        <div>
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-forest">Need help?</h2>
+            <p class="mt-3 text-sm leading-6 text-graphite/75">Shop confidently with secure checkout and order tracking.</p>
         </div>
     </div>
-    <div class="footer-bottom">
-        <p>&copy; {{ date('Y') }} VandoraX Premium Marketplace. All rights reserved. ✨</p>
+    <div class="border-t border-mist">
+        <p class="mx-auto max-w-7xl px-4 py-5 text-xs text-graphite/60 sm:px-6 lg:px-8">&copy; {{ date('Y') }} VandoraX. All rights reserved.</p>
     </div>
 </footer>
-
-<style>
-    footer {
-        background: var(--primary);
-        padding: 80px 20px 40px;
-        border-top: 1px solid var(--border-light);
-    }
-
-    .footer-content {
-        max-width: 1400px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 50px;
-        margin-bottom: 60px;
-    }
-
-    .footer-section h3 {
-        font-size: 14px;
-        font-weight: 700;
-        margin-bottom: 24px;
-        color: var(--accent);
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-    }
-
-    .footer-section ul {
-        list-style: none;
-    }
-
-    .footer-section li {
-        margin-bottom: 12px;
-    }
-
-    .footer-section a {
-        color: var(--text-secondary);
-        text-decoration: none;
-        font-size: 14px;
-        transition: all 0.3s;
-        letter-spacing: 0.3px;
-    }
-
-    .footer-section a:hover {
-        color: var(--accent);
-        padding-left: 6px;
-    }
-
-    .footer-bottom {
-        border-top: 1px solid var(--border-light);
-        padding-top: 40px;
-        text-align: center;
-        color: var(--text-muted);
-        font-size: 13px;
-        letter-spacing: 0.5px;
-    }
-</style>

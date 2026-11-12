@@ -35,16 +35,24 @@ class StockManagementController extends Controller
             ->take(10);
 
         // Get recent inventory logs
-        $recentLogs = ProductInventoryLog::where('product_id', '!=', null)
+        $recentLogs = ProductInventoryLog::with(['product', 'variant'])
+            ->whereNotNull('product_id')
+            ->whereHas('product', fn ($query) => $query->where('vendor_id', $vendor->id))
             ->orderByDesc('created_at')
             ->limit(15)
             ->get();
+
+        $productIds = $lowStockProducts->merge($outOfStockProducts)->pluck('id')->unique();
+        $inventoryByProduct = \App\Models\ProductInventory::whereIn('product_id', $productIds)
+            ->get()
+            ->groupBy('product_id');
 
         return view('vendor.stock.dashboard', compact(
             'stats',
             'lowStockProducts',
             'outOfStockProducts',
-            'recentLogs'
+            'recentLogs',
+            'inventoryByProduct'
         ));
     }
 

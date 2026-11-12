@@ -138,6 +138,7 @@ class CartController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Cart updated successfully!',
+            'quantity' => $cartItem->quantity,
             'item_total' => $cartItem->getTotal(),
             'cart_subtotal' => $cart->getSubtotal(),
             'cart_count' => $cart->getTotalItems(),

@@ -22,6 +22,23 @@
     --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
+:root {
+    --primary-dark: #081813;
+    --primary: #0E2A22;
+    --primary-light: #14392E;
+    --accent: #F2B705;
+    --accent-light: #FDF3D4;
+    --accent-dark: #D9A404;
+    --bg-darker: #F5F7F4;
+    --surface: #FFFFFF;
+    --border-light: #E4EAE5;
+    --border-medium: #C8D6CE;
+    --text-primary: #0E2A22;
+    --text-secondary: #4A5551;
+    --text-muted: #6B7671;
+    --error: #B23A2E;
+}
+
 @layer base {
     html {
         -webkit-font-smoothing: antialiased;
@@ -87,9 +104,23 @@
         border-radius: 2px;
     }
 
+    .btn-secondary {
+        @apply inline-flex w-full items-center justify-center gap-2 border border-mist bg-white px-5 py-3.5
+               text-[15px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest-100/30;
+        border-radius: 2px;
+    }
+
     .btn-quiet {
         @apply text-sm font-medium text-forest underline decoration-mist
                underline-offset-4 transition-colors hover:decoration-forest;
+    }
+
+    .status-pill {
+        @apply inline-flex rounded-full bg-mist px-2.5 py-1 text-xs font-semibold capitalize text-forest;
+    }
+
+    .return-link {
+        @apply mt-3 inline-flex text-sm font-semibold text-forest underline decoration-marigold underline-offset-4;
     }
 
     .panel {
@@ -112,8 +143,12 @@
     }
 
     .sidebar-link {
-        @apply flex items-center gap-3 rounded px-3 py-2.5 text-[14px] font-medium text-graphite
+        @apply flex min-h-11 items-center gap-3 rounded px-3 py-2.5 text-[14px] font-medium leading-5 text-graphite
                transition-colors hover:bg-forest-100/40 hover:text-forest;
+    }
+
+    .sidebar-link:not(.active):focus-visible {
+        @apply bg-forest-100/40 text-forest;
     }
 
     .sidebar-link.active {
@@ -126,6 +161,48 @@
 
     .sidebar-icon {
         @apply h-[18px] w-[18px] shrink-0;
+    }
+
+    #admin-sidebar > nav + div {
+        @apply shrink-0;
+    }
+}
+
+@layer utilities {
+    .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    .admin-content {
+        overflow-wrap: anywhere;
+    }
+
+    .admin-content table {
+        width: max-content;
+        min-width: 100%;
+        max-width: 100%;
+    }
+
+    .admin-content .overflow-x-auto > table {
+        max-width: none;
+    }
+
+    .admin-content input,
+    .admin-content select,
+    .admin-content textarea {
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .admin-content img,
+    .admin-content canvas,
+    .admin-content video {
+        max-width: 100%;
+    }
+
+    #admin-sidebar .sidebar-link {
+        overflow-wrap: anywhere;
     }
 }
 

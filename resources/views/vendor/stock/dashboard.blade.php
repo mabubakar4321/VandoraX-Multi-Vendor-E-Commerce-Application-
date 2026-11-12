@@ -155,7 +155,7 @@
                         <td class="px-6 py-4 text-sm text-graphite/70">{{ $product->sku }}</td>
                         <td class="px-6 py-4">
                             <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-vermilion/20 text-vermilion">
-                                0 units
+                                {{ $inventoryByProduct->get($product->id, collect())->sum('quantity') - $inventoryByProduct->get($product->id, collect())->sum('reserved_quantity') }} units
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm text-graphite">₨{{ number_format($product->base_price) }}</td>
@@ -204,7 +204,11 @@
                 <tbody>
                     @foreach ($lowStockProducts as $product)
                         @php
-                            $inventory = \App\Models\ProductInventory::where('product_id', $product->id)->whereNull('variant_id')->first();
+                            $inventory = $inventoryByProduct->get($product->id, collect());
+                            $quantity = $inventory->sum('quantity');
+                            $reserved = $inventory->sum('reserved_quantity');
+                            $available = $quantity - $reserved;
+                            $threshold = $inventory->sum('low_stock_threshold');
                         @endphp
                     <tr class="border-b hover:bg-gray-50">
                         <td class="px-6 py-4 font-medium text-graphite">
@@ -214,14 +218,14 @@
                         </td>
                         <td class="px-6 py-4 text-sm text-graphite/70">{{ $product->sku }}</td>
                         <td class="px-6 py-4 font-semibold text-graphite">
-                            {{ $inventory?->quantity ?? 0 }} units
+                            {{ $quantity }} units
                         </td>
                         <td class="px-6 py-4 text-sm text-graphite/70">
-                            {{ $inventory?->low_stock_threshold ?? 5 }} units
+                            {{ $threshold }} units
                         </td>
                         <td class="px-6 py-4">
                             <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-marigold/20 text-marigold">
-                                {{ $inventory?->getAvailableStock() ?? 0 }} units
+                                {{ $available }} units
                             </span>
                         </td>
                         <td class="px-6 py-4">
@@ -263,6 +267,7 @@
             </thead>
             <tbody>
                 @forelse ($recentLogs as $log)
+                @if ($log->product)
                 <tr class="border-b hover:bg-gray-50">
                     <td class="px-6 py-4 font-medium text-graphite">
                         <a href="{{ route('vendor.stock.show', $log->product) }}" class="text-forest hover:underline text-sm">
@@ -303,6 +308,7 @@
                         {{ $log->created_at->format('M d, Y H:i') }}
                     </td>
                 </tr>
+                @endif
                 @empty
                 <tr>
                     <td colspan="5" class="px-6 py-8 text-center text-graphite/70">

@@ -7,12 +7,14 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (\Illuminate\Support\Facades\Schema::getConnection()->getDriverName() === 'sqlite') return;
         DB::statement("ALTER TABLE `vendor_documents` MODIFY COLUMN `document_type`
             ENUM('cnic_front','cnic_back','tax_certificate','bank_proof','store_photo') NOT NULL");
     }
 
     public function down(): void
     {
+        if (\Illuminate\Support\Facades\Schema::getConnection()->getDriverName() === 'sqlite') return;
         DB::statement("ALTER TABLE `vendor_documents` MODIFY COLUMN `document_type`
             ENUM('cnic','tax_certificate','bank_proof','store_photo') NOT NULL");
     }

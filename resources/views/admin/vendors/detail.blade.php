@@ -3,20 +3,20 @@
 @section('title', 'Vendor Detail')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
+<div class="mx-auto w-full max-w-7xl space-y-6">
     <!-- Header -->
-    <div class="mb-8 flex items-center justify-between">
-        <div>
+    <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <div class="min-w-0">
             <a href="{{ route('admin.vendors.pending') }}" class="text-indigo-600 hover:text-indigo-700 flex items-center mb-4">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
                 Back to List
             </a>
-            <h1 class="text-4xl font-bold text-gray-900">Vendor Application Review</h1>
-            <p class="text-gray-600 mt-2">{{ $vendor->user->name }} - {{ $vendor->store_name }}</p>
+            <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">Vendor Application Review</h1>
+            <p class="mt-2 break-words text-gray-600">{{ $vendor->user->name }} - {{ $vendor->store_name }}</p>
         </div>
-        <div class="text-right">
+        <div class="text-left sm:text-right">
             <p class="text-sm text-gray-600">Status</p>
             @if($vendor->status === 'pending_documents')
                 <span class="px-4 py-2 bg-red-100 text-red-800 rounded-full font-medium">📄 Pending Documents</span>
@@ -50,13 +50,13 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-3">
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Personal Information -->
             <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-4">Personal Information</h2>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                         <p class="text-sm text-gray-600">Full Name</p>
                         <p class="text-lg font-medium text-gray-900">{{ $vendor->user->name }}</p>
@@ -115,7 +115,7 @@
                         </svg>
                         <p class="text-sm">Bank details are encrypted at rest and shown here only to authorized administrators.</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <p class="text-sm text-gray-600">Account Holder Name</p>
                             <p class="text-lg font-medium text-gray-900">{{ $bankDetails['account_holder_name'] ?? 'N/A' }}</p>
@@ -146,9 +146,9 @@
                 <div class="space-y-3">
                     @if($documents->count() > 0)
                         @foreach($documents as $doc)
-                            <div class="border rounded-lg p-4 flex items-center justify-between hover:bg-gray-50 transition">
-                                <div class="flex items-center">
-                                    <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                            <div class="flex flex-col gap-4 border rounded-lg p-4 hover:bg-gray-50 transition sm:flex-row sm:items-center sm:justify-between">
+                                <div class="flex min-w-0 items-center">
+                                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-indigo-100">
                                         @if(in_array($doc->document_type, ['cnic', 'bank_proof']))
                                             <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -159,7 +159,7 @@
                             </svg>
                         @endif
                                     </div>
-                                    <div class="ml-4">
+                                    <div class="ml-4 min-w-0">
                                         <p class="font-medium text-gray-900">
                                             @if($doc->document_type === 'cnic')
                                                 CNIC/ID
@@ -171,10 +171,10 @@
                                                 {{ ucfirst($doc->document_type) }}
                                             @endif
                                         </p>
-                                        <p class="text-sm text-gray-600">{{ $doc->file_name }}</p>
+                                        <p class="break-all text-sm text-gray-600">{{ $doc->file_name }}</p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-3">
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-2 sm:justify-end">
                                     @if($doc->status === 'approved')
                                         <span class="px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">✓ Approved</span>
                                     @elseif($doc->status === 'rejected')
@@ -182,9 +182,9 @@
                                     @else
                                         <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full font-medium">⏳ Pending</span>
                                     @endif
-                                    <a href="{{ route('admin.vendors.document.view', $doc->id) }}" target="_blank" class="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
+                                    <button type="button" onclick="openDocumentModal('{{ route('admin.vendors.document.view', $doc->id) }}', {{ str_starts_with($doc->mime_type, 'image/') ? 'true' : 'false' }})" class="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
                                         View
-                                    </a>
+                                    </button>
                                     @if($doc->status === 'pending')
                                         <form action="{{ route('admin.vendors.document.approve', $doc->id) }}" method="POST">
                                             @csrf
@@ -325,14 +325,28 @@
         </div>
     </div>
 
+    <!-- Document Preview Modal -->
+    <div id="documentModal" class="fixed inset-0 z-50 hidden flex items-center justify-center overflow-y-auto bg-black/60 p-3 sm:p-4" onclick="closeDocumentModal(event)">
+        <div class="my-auto max-h-[92dvh] w-full max-w-5xl overflow-hidden rounded-lg bg-white p-3 shadow-lg sm:p-4" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h2 class="text-xl font-bold text-gray-900">Document Preview</h2>
+                <button type="button" onclick="closeDocumentModal()" class="text-2xl text-gray-500 hover:text-gray-900">&times;</button>
+            </div>
+            <div class="mt-4 max-h-[78vh] overflow-auto bg-gray-100 p-3 text-center">
+                <img id="documentImage" src="" alt="Vendor document" class="hidden mx-auto max-h-[72vh] max-w-full object-contain">
+                <iframe id="documentFrame" src="" title="Vendor document" class="hidden h-[72vh] w-full"></iframe>
+            </div>
+        </div>
+    </div>
+
     <!-- Reject Modal -->
-    <div id="rejectModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-lg max-w-md w-full mx-4">
-            <div class="p-6 border-b">
+    <div id="rejectModal" class="fixed inset-0 z-50 hidden flex items-center justify-center overflow-y-auto bg-black/50 p-3 sm:p-4">
+        <div class="my-auto w-full max-w-md rounded-lg bg-white shadow-lg">
+            <div class="border-b p-4 sm:p-6">
                 <h2 class="text-xl font-bold text-gray-900">Reject Vendor Application</h2>
                 <p class="text-gray-600 mt-1">Please provide a reason for rejection</p>
             </div>
-            <form action="{{ route('admin.vendors.reject', $vendor->id) }}" method="POST" class="p-6">
+            <form action="{{ route('admin.vendors.reject', $vendor->id) }}" method="POST" class="p-4 sm:p-6">
                 @csrf
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Rejection</label>
@@ -341,7 +355,7 @@
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-                <div class="flex gap-3">
+                <div class="flex flex-col-reverse gap-3 sm:flex-row">
                     <button type="button" onclick="closeRejectModal()" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition">
                         Cancel
                     </button>
@@ -365,18 +379,48 @@
             return true;
         }
 
+        function openDocumentModal(url, isImage) {
+            const modal = document.getElementById('documentModal');
+            const image = document.getElementById('documentImage');
+            const frame = document.getElementById('documentFrame');
+
+            image.classList.toggle('hidden', !isImage);
+            frame.classList.toggle('hidden', isImage);
+            if (isImage) {
+                image.src = url;
+            } else {
+                frame.src = url;
+            }
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeDocumentModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            const modal = document.getElementById('documentModal');
+            const image = document.getElementById('documentImage');
+            const frame = document.getElementById('documentFrame');
+            modal.classList.add('hidden');
+            image.src = '';
+            frame.src = '';
+            document.body.classList.remove('overflow-hidden');
+        }
+
         function openRejectModal() {
             document.getElementById('rejectModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
         }
 
         function closeRejectModal() {
             document.getElementById('rejectModal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
         }
 
         // Close modal on escape key
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeRejectModal();
+                closeDocumentModal();
             }
         });
     </script>
